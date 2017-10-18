@@ -30,11 +30,25 @@ use Paydock\Sdk\config;
             $secretKey = $overrideSecretKey;
         }
 
-        // TODO: add headers
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+        curl_setopt($ch, CURLOPT_URL, Config::baseUrl() . $endpoint);
+        curl_setopt($ch, CURLOPT_ENCODING, "gzip");
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            "Content-Type: application/json",
+            "Content-Length: ". strlen($data),
+            "x-user-token:". $secretKey,
+        ]);
+        
+        $response = curl_exec($ch);
+        curl_close($ch);
+        return json_decode($response, true);
+        
+        // TODO: implement timeout
 
-        // TODO: make the call
-
-        // TODO: catch any errors
+        // TODO: catch any errors, return status code
 
         // TODO: force to TLS 1.2
     }

@@ -19,15 +19,14 @@ final class TestCharges extends TestCase
         Config::initialise("sandbox", "fccbf57c8a65a609ed86edd417177905bfd5a99b", "cc5bedb53a1b64491b5b468a2486b32cc250cda2");
     }
 
-    public function testcreateCharge()
+    public function testCreateChargeWithCard()
     {
-
         $svc = new Charges();
         $response = $svc->create(100, "AUD")
-            ->withToken("tokenId")
+            ->withCreditCard("58377235377aea03343240cc", "4111111111111111", "2020", "10", "Test Name", "123")
             ->call();
         
-        // TODO: perform some validation of the test
+        $this->assertEquals("201", $response["status"]);
     }
 }
 ?>
