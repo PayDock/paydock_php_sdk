@@ -16,7 +16,7 @@ class Config
     public static $publicKey;
     public static $timeoutMilliseconds;
 
-    public static function initialise($environment, $secretKey, $publicKey, $timeoutMilliseconds = 60)
+    public static function initialise($environment, $secretKey, $publicKey, $timeoutMilliseconds = 60000)
     {
         // TODO: validate the environment
         self::$environment = $environment;

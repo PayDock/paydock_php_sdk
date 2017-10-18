@@ -1,11 +1,13 @@
 <?php
 
 require_once(__DIR__."/../src/config.php");
+require_once(__DIR__."/../src/ResponseException.php");
 require_once(__DIR__."/../src/services/charges.php");
 
 use PHPUnit\Framework\TestCase;
 use Paydock\Sdk\config;
 use Paydock\Sdk\charges;
+use Paydock\Sdk\ResponseException;
 
 // TODO: follow PSR-0 & PSR-4 for autoloading
 
@@ -27,6 +29,34 @@ final class TestCharges extends TestCase
             ->call();
         
         $this->assertEquals("201", $response["status"]);
+    }
+    
+    public function testCreateChargeWithoutGateway()
+    {
+        $svc = new Charges();
+        
+        $this->expectException(ResponseException::class);
+
+        $response = $svc->create(100, "AUD")
+            ->withCreditCard("", "4111111111111111", "2020", "10", "Test Name", "123")
+            ->call();
+    }
+    
+    public function testCreateChargeWithLowTimeout()
+    {
+        Config::$timeoutMilliseconds = 10;
+        $svc = new Charges();
+
+        try
+        {
+            $response = $svc->create(100, "AUD")
+                ->withCreditCard("58377235377aea03343240cc", "4111111111111111", "2020", "10", "Test Name", "123")
+                ->call();
+        } catch (ResponseException $ex) {
+            $this->assertEquals("400", $ex->Status);
+        }
+
+        Config::$timeoutMilliseconds = 60000;
     }
 }
 ?>
