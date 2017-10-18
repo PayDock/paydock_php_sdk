@@ -31,6 +31,20 @@ final class TestCharges extends TestCase
         $this->assertEquals("201", $response["status"]);
     }
     
+    public function testCreateChargeWithBankAccount()
+    {
+        $svc = new Charges();
+        try {
+            $response = $svc->create(100, "AUD")
+                ->withBankAccount("58814949ca63b81cbd2acad0", "test", "012003", "456456")
+                ->call();
+        } catch (ResponseException $ex) {
+            echo($ex->JsonResponse);
+        }
+        
+        $this->assertEquals("201", $response["status"]);
+    }    
+    
     // TODO: add tests for: charge with token, charge with customerid
     
     public function testCreateChargeWithoutGateway()

@@ -38,6 +38,12 @@ final class Charges
         $this->paymentSourceData = array("gateway_id" => $gatewayId, "card_number" => $cardNumber, "expire_month" => $expireMonth, "expire_year" => $expireYear, "card_name" => $cardHolderName, "card_ccv" => $ccv);
         return $this;
     }
+    
+    public function withBankAccount($gatewayId, $accountName, $accountBsb, $accountNumber, $accountHolderType = "", $accountBankName = "")
+    {
+        $this->paymentSourceData = array("gateway_id" => $gatewayId, "type" => "bank_account", "account_name" => $accountName, "account_bsb" => $accountBsb, "account_number" => $accountNumber, "account_holder_type" => $accountHolderType, "account_bank_name" => $accountBankName);
+        return $this;
+    }
 
     public function withCustomerId($customerId, $paymentSourceId = "")
     {
@@ -47,6 +53,10 @@ final class Charges
         }
         return $this;
     }
+
+    // TODO: add: includeCustomerDetails, includeAddress, includeMeta
+
+    // TODO: add: get charges, refund, archived
 
     private function buildJson()
     {
@@ -98,8 +108,6 @@ final class Charges
         $data = $this->buildJson();
 
         return ServiceHelper::privateApiCall("POST", "charges", $data);
-
-        // TODO: handle errors
     }
 }
 ?>
