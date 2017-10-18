@@ -15,6 +15,7 @@ final class Charges
 {
     private $chargeData;
     private $token;
+    private $customerId;
     private $paymentSourceData;
     private $customerData;
     private $action;
@@ -38,6 +39,15 @@ final class Charges
         return $this;
     }
 
+    public function withCustomerId($customerId, $paymentSourceId = "")
+    {
+        $this->customerId = $customerId;
+        if (!empty($paymentSourceId)) {
+            $customerData["payment_source_id"] = $paymentSourceId;
+        }
+        return $this;
+    }
+
     private function buildJson()
     {
         switch ($this->action) {
@@ -48,7 +58,6 @@ final class Charges
 
     private function buildCreateJson()
     {
-        // TODO: unit test all creation paths with this
         // TODO: add validation that at least one payment option has been provided (eg token, customer etc)
 
         $arrayData = [
@@ -66,6 +75,13 @@ final class Charges
 
         if (!empty($this->token)) {
             $arrayData += ["token" => $this->token];
+
+        } else if (!empty($this->customerId)) {
+            $arrayData += ["customer_id" => $this->customerId];
+            if (!empty($this->customerData)) {
+                $arrayData += ["customer" => $customer];
+            }
+            
         } else if (!empty($this->paymentSourceData)) {
             if (empty($this->customerData)) {
                 $arrayData += ["customer" => ["payment_source" => $this->paymentSourceData]];

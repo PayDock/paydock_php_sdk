@@ -31,6 +31,8 @@ final class TestCharges extends TestCase
         $this->assertEquals("201", $response["status"]);
     }
     
+    // TODO: add tests for: charge with token, charge with customerid
+    
     public function testCreateChargeWithoutGateway()
     {
         $svc = new Charges();
