@@ -74,9 +74,7 @@ final class Charges
                 $arrayData += ["customer" => $customer];
             }
         }
-        $data = json_encode($arrayData);
-
-        return $data;
+        return json_encode($arrayData);
     }
 
     public function call()
