@@ -18,9 +18,10 @@ final class Charges
     private $chargeData;
     private $token;
     private $customerId;
-    private $paymentSourceData;
+    private $paymentSourceData = array();
     private $customerData = array();
     private $action;
+    private $meta;
     
     public function create($amount, $currency, $description = "", $reference = "")
     {
@@ -62,7 +63,15 @@ final class Charges
         return $this;
     }
 
-    // TODO: add: includeAddress, includeMeta
+    public function includeAddress($addressLine1, $addressLine2, $addressState, $addressCountry, $addressCity, $addressPostcode)
+    {
+        $this->paymentSourceData += array("address_line1" => $addressLine1, "address_line2" => $address_line2, "address_state" => $addressState, "address_country" => $addressCountry, "address_city" => $addressCity, "address_postcode" => $addressPostcode);
+    }
+
+    public function includeMeta($meta)
+    {
+        $this->meta = $meta;
+    }
 
     // TODO: add: get charges, refund, archived
 
@@ -76,42 +85,41 @@ final class Charges
 
     private function buildCreateJson()
     {
-        // TODO: add validation that at least one payment option has been provided (eg token, customer etc)
+        if (empty($this->token) && empty($this->customerId) && count($this->paymentSourceData) == 0) {
+            throw new \BadMethodCallException("must call with a token, customer or payment information");
+        }
 
         $arrayData = [
             'amount'      => $this->chargeData["amount"],
             'currency'    => $this->chargeData["currency"],
+            'reference'   => $this->chargeData["reference"],
+            'description'   => $this->chargeData["description"]
         ];
-
-        if (!empty($this->chargeData["reference"])){
-            $arrayData += ['reference' => $this->chargeData["reference"]];
-        }
-
-        if (!empty($this->chargeData["description"])){
-            $arrayData += ['description' => $this->chargeData["description"]];
-        }
 
         if (!empty($this->token)) {
             $arrayData += ["token" => $this->token];
-
         } else if (!empty($this->customerId)) {
             $arrayData += ["customer_id" => $this->customerId];
-            if (!empty($this->customerData)) {
-                $arrayData += ["customer" => $customer];
+        }
+    
+        if (!empty($this->customerData)) {
+            $arrayData += ["customer" => $this->customerData];
+        }
+
+        if (!empty($this->paymentSourceData)) {
+            if (empty($arrayData["customer"])) {
+                $arrayData["customer"] = array();
             }
-            
-        } else if (!empty($this->paymentSourceData)) {
-            if (empty($this->customerData)) {
-                $arrayData += ["customer" => ["payment_source" => $this->paymentSourceData]];
-            } else {
-                $customer = $this->customerData + ["payment_source" => $this->paymentSourceData];
-                $arrayData += ["customer" => $customer];
-            }
+            $arrayData["customer"]["payment_source"] = $this->paymentSourceData;
+        }
+
+        if (!empty($this->meta)) {
+            $arrayData += ["meta" => $this->meta];
         }
 
         $jsonTools = new JsonTools();
         $arrayData = $jsonTools->CleanArray($arrayData);
-
+        
         return json_encode($arrayData);
     }
 

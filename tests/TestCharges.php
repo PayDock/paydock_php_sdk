@@ -71,5 +71,20 @@ final class TestCharges extends TestCase
 
         Config::$timeoutMilliseconds = 60000;
     }
+
+    public function testCreateChargeWithoutPaymentDetails()
+    {
+        $svc = new Charges();
+        
+        $exceptionOccurred = false;
+        try {
+            $response = $svc->create(100, "AUD")
+                ->call();
+        } catch (BadMethodCallException $ex) {
+            $exceptionOccurred = true;
+        }
+
+        $this->assertTrue($exceptionOccurred);
+    }
 }
 ?>
