@@ -34,13 +34,10 @@ final class TestCharges extends TestCase
     public function testCreateChargeWithBankAccount()
     {
         $svc = new Charges();
-        try {
-            $response = $svc->create(100, "AUD")
-                ->withBankAccount("58814949ca63b81cbd2acad0", "test", "012003", "456456")
-                ->call();
-        } catch (ResponseException $ex) {
-            echo($ex->JsonResponse);
-        }
+        $response = $svc->create(100, "AUD")
+            ->withBankAccount("58814949ca63b81cbd2acad0", "test", "012003", "456456")
+            ->includeCustomerDetails("John", "Smith", "test@email.com", "+61414111111")
+            ->call();
         
         $this->assertEquals("201", $response["status"]);
     }    

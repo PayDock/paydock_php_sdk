@@ -17,7 +17,7 @@ final class Charges
     private $token;
     private $customerId;
     private $paymentSourceData;
-    private $customerData;
+    private $customerData = array();
     private $action;
     
     public function create($amount, $currency, $description = "", $reference = "")
@@ -49,12 +49,18 @@ final class Charges
     {
         $this->customerId = $customerId;
         if (!empty($paymentSourceId)) {
-            $customerData["payment_source_id"] = $paymentSourceId;
+            $this->customerData["payment_source_id"] = $paymentSourceId;
         }
         return $this;
     }
 
-    // TODO: add: includeCustomerDetails, includeAddress, includeMeta
+    public function includeCustomerDetails($firstName, $lastName, $email, $phone)
+    {
+        $this->customerData += array("first_name" => $firstName, "last_name" => $lastName, "email" => $email, "phone" => $phone);
+        return $this;
+    }
+
+    // TODO: add: includeAddress, includeMeta
 
     // TODO: add: get charges, refund, archived
 
@@ -76,11 +82,11 @@ final class Charges
         ];
 
         if (!empty($this->chargeData["reference"])){
-            $arrayData += ['reference'   => $this->chargeData["reference"]];
+            $arrayData += ['reference' => $this->chargeData["reference"]];
         }
 
         if (!empty($this->chargeData["description"])){
-            $arrayData += ['description'   => $this->chargeData["description"]];
+            $arrayData += ['description' => $this->chargeData["description"]];
         }
 
         if (!empty($this->token)) {
@@ -100,6 +106,7 @@ final class Charges
                 $arrayData += ["customer" => $customer];
             }
         }
+
         return json_encode($arrayData);
     }
 

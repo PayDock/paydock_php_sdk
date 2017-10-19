@@ -93,6 +93,8 @@ use Paydock\Sdk\ResponseException;
             }
         }
 
+        $ex->ErrorMessage = $ex->Status . " - " . $ex->ErrorMessage;
+
         throw $ex;
     }
 }
