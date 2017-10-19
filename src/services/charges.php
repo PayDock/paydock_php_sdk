@@ -22,6 +22,7 @@ final class Charges
     private $customerData = array();
     private $action;
     private $meta;
+    private $actionMap = array("create" => "POST", "get" => "GET");
     
     public function create($amount, $currency, $description = "", $reference = "")
     {
@@ -75,14 +76,6 @@ final class Charges
 
     // TODO: add: get charges, refund, archived
 
-    private function buildJson()
-    {
-        switch ($this->action) {
-            case "create":
-                return $this->buildCreateJson();
-        }
-    }
-
     private function buildCreateJson()
     {
         if (empty($this->token) && empty($this->customerId) && count($this->paymentSourceData) == 0) {
@@ -123,11 +116,27 @@ final class Charges
         return json_encode($arrayData);
     }
 
+    public function get()
+    {
+        $this->action = "get";
+        return $this;
+    }
+    
+    private function buildJson()
+    {
+        switch ($this->action) {
+            case "create":
+                return $this->buildCreateJson();
+        }
+
+        return "";
+    }
+
     public function call()
     {
         $data = $this->buildJson();
 
-        return ServiceHelper::privateApiCall("POST", "charges", $data);
+        return ServiceHelper::privateApiCall($this->actionMap[$this->action], "charges", $data);
     }
 }
 ?>

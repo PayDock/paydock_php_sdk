@@ -9,8 +9,6 @@ use Paydock\Sdk\config;
 use Paydock\Sdk\charges;
 use Paydock\Sdk\ResponseException;
 
-// TODO: follow PSR-0 & PSR-4 for autoloading
-
 /**
  * @covers charges
  */
@@ -40,9 +38,7 @@ final class TestCharges extends TestCase
             ->call();
         
         $this->assertEquals("201", $response["status"]);
-    }    
-    
-    // TODO: add tests for: charge with token, charge with customerid
+    }
     
     public function testCreateChargeWithoutGateway()
     {
@@ -85,6 +81,18 @@ final class TestCharges extends TestCase
         }
 
         $this->assertTrue($exceptionOccurred);
+    }
+    
+    // TODO: add tests for: charge with token, charge with customerid
+
+    public function testGet()
+    {
+        $svc = new Charges();
+
+        $response = $svc->get()
+            ->call();
+
+        $this->assertEquals("200", $response["status"]);
     }
 }
 ?>

@@ -1,7 +1,6 @@
 <?php
 namespace Paydock\Sdk;
 
-// TODO: replace all this with an autoloader
 require_once(__DIR__."/../config.php");
 require_once(__DIR__."/../ResponseException.php");
 
