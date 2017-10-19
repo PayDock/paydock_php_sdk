@@ -94,5 +94,20 @@ final class TestCharges extends TestCase
 
         $this->assertEquals("200", $response["status"]);
     }
+
+    public function testGetbyId()
+    {
+        $svc = new Charges();
+
+        $response = $svc->create(10, "AUD")
+            ->withCreditCard("58377235377aea03343240cc", "4111111111111111", "2021", "10", "Test Name", "123")
+            ->call();
+
+        $response = $svc->get()
+            ->withChargeId($response["resource"]["data"]["_id"])
+            ->call();
+
+        $this->assertEquals("200", $response["status"]);
+    }
 }
 ?>
