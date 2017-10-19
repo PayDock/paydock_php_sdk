@@ -1,7 +1,9 @@
 <?php
 namespace Paydock\Sdk;
 
-require_once(__DIR__."/../tools/serviceHelper.php");
+require_once(__DIR__."/../tools/ServiceHelper.php");
+require_once(__DIR__."/../tools/JsonTools.php");
+
 use Paydock\Sdk\serviceHelper;
 /*
  * This file is part of the Paydock.Sdk package.
@@ -106,6 +108,9 @@ final class Charges
                 $arrayData += ["customer" => $customer];
             }
         }
+
+        $jsonTools = new JsonTools();
+        $arrayData = $jsonTools->CleanArray($arrayData);
 
         return json_encode($arrayData);
     }
