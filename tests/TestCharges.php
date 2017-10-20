@@ -109,5 +109,22 @@ final class TestCharges extends TestCase
 
         $this->assertEquals("200", $response["status"]);
     }
+
+    public function testGetByReference()
+    {
+        $svc = new Charges();
+
+        $reference = uniqid();
+        $response = $svc->create(10, "AUD", "", $reference)
+            ->withCreditCard("58377235377aea03343240cc", "4111111111111111", "2021", "10", "Test Name", "123")
+            ->call();
+
+        $response = $svc->get()
+            ->withParameters(["reference" => $reference])
+            ->call();
+
+        $this->assertEquals("200", $response["status"]);
+        $this->assertEquals(1, $response["resource"]["count"]);
+    }
 }
 ?>

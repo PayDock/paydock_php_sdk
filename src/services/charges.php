@@ -25,6 +25,7 @@ final class Charges
     private $action;
     private $meta;
     private $chargeId;
+    private $chargeFilter;
     private $actionMap = array("create" => "POST", "get" => "GET");
     
     public function create($amount, $currency, $description = "", $reference = "")
@@ -76,8 +77,6 @@ final class Charges
     {
         $this->meta = $meta;
     }
-
-    // TODO: add: get charges, refund, archived
 
     private function buildCreateJson()
     {
@@ -131,6 +130,12 @@ final class Charges
         return $this;
     }
     
+    public function withParameters($filter)
+    {
+        $this->chargeFilter = $filter;
+        return $this;
+    }
+    
     private function buildJson()
     {
         switch ($this->action) {
@@ -156,9 +161,16 @@ final class Charges
         $url = "charges";
         if (!empty($this->chargeId)) {
             $url .= "/" . urlencode($this->chargeId);
+        } else {
+            $url .= "?";
+            foreach ($this->chargeFilter as $key => $value) {
+                $url .= urlencode($key) . "=" . urlencode($value);
+            }
         }
         return $url;
     }
+
+    // TODO: add: get charges with parameters, refund, archived
 
     public function call()
     {
