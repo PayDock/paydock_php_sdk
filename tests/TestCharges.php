@@ -2,7 +2,7 @@
 
 require_once(__DIR__."/../src/config.php");
 require_once(__DIR__."/../src/ResponseException.php");
-require_once(__DIR__."/../src/services/charges.php");
+require_once(__DIR__."/../src/services/Charges.php");
 
 use PHPUnit\Framework\TestCase;
 use Paydock\Sdk\config;
