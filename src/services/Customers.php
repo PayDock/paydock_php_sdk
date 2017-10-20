@@ -18,12 +18,13 @@ final class Customers
     private $token;
     private $customerData;
     private $paymentSourceData;
+    private $meta;
     private $actionMap = array("create" => "POST");
     
-    public function create($firstName = "", $lastName = "", $email = "", $phone = "", $refernce = "")
+    public function create($firstName = "", $lastName = "", $email = "", $phone = "", $reference = "")
     {
         $this->action = "create";
-        $this->customerData = ["first_name" => $firstName, "last_name" => $lastName, "email" => $email, "phone" => $phone, "refernce" => $refernce];
+        $this->customerData = ["first_name" => $firstName, "last_name" => $lastName, "email" => $email, "phone" => $phone, "reference" => $reference];
         return $this;
     }
 
@@ -38,6 +39,24 @@ final class Customers
         $this->paymentSourceData = ["gateway_id" => $gatewayId, "card_number" => $cardNumber, "expire_month" => $expireMonth, "expire_year" => $expireYear, "card_name" => $cardHolderName, "card_ccv" => $ccv];
         return $this;
     }
+    
+    public function withBankAccount($gatewayId, $accountName, $accountBsb, $accountNumber, $accountHolderType = "", $accountBankName = "")
+    {
+        $this->paymentSourceData = ["gateway_id" => $gatewayId, "type" => "bank_account", "account_name" => $accountName, "account_bsb" => $accountBsb, "account_number" => $accountNumber, "account_holder_type" => $accountHolderType, "account_bank_name" => $accountBankName];
+        return $this;
+    }
+    
+    public function includeAddress($addressLine1, $addressLine2, $addressState, $addressCountry, $addressCity, $addressPostcode)
+    {
+        $this->paymentSourceData += ["address_line1" => $addressLine1, "address_line2" => $addressLine2, "address_state" => $addressState, "address_country" => $addressCountry, "address_city" => $addressCity, "address_postcode" => $addressPostcode];
+        return $this;
+    }
+
+    public function includeMeta($meta)
+    {
+        $this->meta = $meta;
+        return $this;
+    }
 
     private function buildJson()
     {
@@ -47,6 +66,10 @@ final class Customers
             $arrayData += ["token" => $this->token];
         } else if (!empty($this->paymentSourceData)) {
             $arrayData["payment_source"] = $this->paymentSourceData;
+        }
+
+        if (!empty($this->meta)) {
+            $arrayData += ["meta" => $this->meta];
         }
 
         $jsonTools = new JsonTools();

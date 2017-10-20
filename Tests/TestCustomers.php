@@ -34,5 +34,16 @@ final class TestCustomers extends TestCase
         $this->assertEquals("201", $response["status"]);
     }
     
+    public function testCreateCustomerWithBankAccount()
+    {
+        $svc = new Customers();
+        $response = $svc->create("John", "Smith", "test@test.com", "+61414111111")
+            ->withBankAccount("58814949ca63b81cbd2acad0", "test", "012003", "456456")
+            ->includeAddress("1 something st", "", "NSW", "Australia", "Sydney", "2000")
+            ->includeMeta("")
+            ->call();
+        
+        $this->assertEquals("201", $response["status"]);
+    }
 }
 ?>

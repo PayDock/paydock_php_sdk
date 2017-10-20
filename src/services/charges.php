@@ -68,12 +68,14 @@ final class Charges
 
     public function includeAddress($addressLine1, $addressLine2, $addressState, $addressCountry, $addressCity, $addressPostcode)
     {
-        $this->paymentSourceData += ["address_line1" => $addressLine1, "address_line2" => $address_line2, "address_state" => $addressState, "address_country" => $addressCountry, "address_city" => $addressCity, "address_postcode" => $addressPostcode];
+        $this->paymentSourceData += ["address_line1" => $addressLine1, "address_line2" => $addressLine2, "address_state" => $addressState, "address_country" => $addressCountry, "address_city" => $addressCity, "address_postcode" => $addressPostcode];
+        return $this;
     }
 
     public function includeMeta($meta)
     {
         $this->meta = $meta;
+        return $this;
     }
 
     private function buildCreateJson()
