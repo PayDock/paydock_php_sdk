@@ -83,7 +83,7 @@ final class TestCharges extends TestCase
         $this->assertTrue($exceptionOccurred);
     }
     
-    // TODO: add tests for: charge with token, charge with customerid
+    TODO: add tests for: charge with token, charge with customerid
 
     public function testGet()
     {
@@ -126,5 +126,22 @@ final class TestCharges extends TestCase
         $this->assertEquals("200", $response["status"]);
         $this->assertEquals(1, $response["resource"]["count"]);
     }
+
+    // commented out as requires charge to have settled to refund
+    // public function testRefund()
+    // {
+    //     $svc = new Charges();
+    //     $response = $svc->create(10, "AUD")
+    //         ->withBankAccount("58814949ca63b81cbd2acad0", "test", "012003", "456456")
+    //         ->includeCustomerDetails("John", "Smith", "test@email.com", "+61414111111")
+    //         ->call();
+
+    //     $chargeId = $response["resource"]["data"]["_id"];
+        
+    //     $response = $svc->refund($chargeId)
+    //         ->call();
+
+    //     $this->assertEquals("200", $response["status"]);
+    // }
 }
 ?>

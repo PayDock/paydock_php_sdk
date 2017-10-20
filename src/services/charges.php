@@ -26,7 +26,8 @@ final class Charges
     private $meta;
     private $chargeId;
     private $chargeFilter;
-    private $actionMap = array("create" => "POST", "get" => "GET");
+    private $refundAmount;
+    private $actionMap = array("create" => "POST", "get" => "GET", "refund" => "POST");
     
     public function create($amount, $currency, $description = "", $reference = "")
     {
@@ -118,6 +119,14 @@ final class Charges
         return json_encode($arrayData);
     }
 
+    private function buildRefundJson()
+    {
+        if (!empty($this->refundAmount)) {
+            return json_encode(["amount" => $this->refundAmount]);
+        }
+        return "";
+    }
+
     public function get()
     {
         $this->action = "get";
@@ -135,12 +144,22 @@ final class Charges
         $this->chargeFilter = $filter;
         return $this;
     }
+
+    public function refund($chargeId, $amount = null)
+    {
+        $this->action = "refund";
+        $this->chargeId = $chargeId;
+        $this->refundAmount = $amount;
+        return $this;
+    }
     
     private function buildJson()
     {
         switch ($this->action) {
             case "create":
                 return $this->buildCreateJson();
+            case "refund":
+                return $this->buildRefundJson();
         }
 
         return "";
@@ -151,6 +170,8 @@ final class Charges
         switch ($this->action) {
             case "get":
                 return $this->buildGetUrl();
+            case "refund":
+                return "charges/" . urlencode($this->chargeId) . "/refunds";
         }
 
         return "charges";
@@ -170,7 +191,7 @@ final class Charges
         return $url;
     }
 
-    // TODO: add: get charges with parameters, refund, archived
+    // TODO: add: archived
 
     public function call()
     {
