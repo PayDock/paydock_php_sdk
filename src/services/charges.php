@@ -27,7 +27,7 @@ final class Charges
     private $chargeId;
     private $chargeFilter;
     private $refundAmount;
-    private $actionMap = array("create" => "POST", "get" => "GET", "refund" => "POST");
+    private $actionMap = array("create" => "POST", "get" => "GET", "refund" => "POST", "archive" => "DELETE");
     
     public function create($amount, $currency, $description = "", $reference = "")
     {
@@ -133,6 +133,21 @@ final class Charges
         return $this;
     }
     
+    public function refund($chargeId, $amount = null)
+    {
+        $this->action = "refund";
+        $this->chargeId = $chargeId;
+        $this->refundAmount = $amount;
+        return $this;
+    }
+    
+    public function archive($chargeId)
+    {
+        $this->action = "archive";
+        $this->chargeId = $chargeId;
+        return $this;
+    }
+    
     public function withChargeId($chargeId)
     {
         $this->chargeId = $chargeId;
@@ -142,14 +157,6 @@ final class Charges
     public function withParameters($filter)
     {
         $this->chargeFilter = $filter;
-        return $this;
-    }
-
-    public function refund($chargeId, $amount = null)
-    {
-        $this->action = "refund";
-        $this->chargeId = $chargeId;
-        $this->refundAmount = $amount;
         return $this;
     }
     
@@ -172,6 +179,8 @@ final class Charges
                 return $this->buildGetUrl();
             case "refund":
                 return "charges/" . urlencode($this->chargeId) . "/refunds";
+            case "archive":
+                return "charges/" . urlencode($this->chargeId);
         }
 
         return "charges";
@@ -191,7 +200,7 @@ final class Charges
         return $url;
     }
 
-    // TODO: add: archived
+    // TODO: add: archived list
 
     public function call()
     {

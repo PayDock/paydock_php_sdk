@@ -82,8 +82,6 @@ final class TestCharges extends TestCase
 
         $this->assertTrue($exceptionOccurred);
     }
-    
-    TODO: add tests for: charge with token, charge with customerid
 
     public function testGet()
     {
@@ -127,21 +125,48 @@ final class TestCharges extends TestCase
         $this->assertEquals(1, $response["resource"]["count"]);
     }
 
-    // commented out as requires charge to have settled to refund
-    // public function testRefund()
-    // {
-    //     $svc = new Charges();
-    //     $response = $svc->create(10, "AUD")
-    //         ->withBankAccount("58814949ca63b81cbd2acad0", "test", "012003", "456456")
-    //         ->includeCustomerDetails("John", "Smith", "test@email.com", "+61414111111")
-    //         ->call();
+    public function testRefund()
+    {
+        $svc = new Charges();
+        $response = $svc->create(10, "AUD")
+            ->withBankAccount("58814949ca63b81cbd2acad0", "test", "012003", "456456")
+            ->includeCustomerDetails("John", "Smith", "test@email.com", "+61414111111")
+            ->call();
 
-    //     $chargeId = $response["resource"]["data"]["_id"];
+        $chargeId = $response["resource"]["data"]["_id"];
         
-    //     $response = $svc->refund($chargeId)
-    //         ->call();
+        $this->markTestSkipped("this test fails due to limitations at the gateway level");
+        return;
 
-    //     $this->assertEquals("200", $response["status"]);
-    // }
+        $response = $svc->refund($chargeId)
+            ->call();
+
+        $this->assertEquals("200", $response["status"]);
+    }
+    
+    public function testCreateWithCustomerId()
+    {
+        $this->markTestIncomplete("not implemented yet");
+    }
+
+    public function testCreateWithToken()
+    {
+        $this->markTestIncomplete("not implemented yet");
+    }
+
+    public function testArchive()
+    {
+        $svc = new Charges();
+        $response = $svc->create(10, "AUD")
+            ->withCreditCard("58377235377aea03343240cc", "4111111111111111", "2021", "10", "Test Name", "123")
+            ->call();
+
+        $chargeId = $response["resource"]["data"]["_id"];
+
+        $response = $svc->archive($chargeId)
+            ->call();
+
+        $this->assertEquals("200", $response["status"]);
+    }
 }
 ?>
