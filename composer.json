@@ -1,5 +1,8 @@
 {
+    "name": "Paydock/paydock_php_sdk",
+    "description": "The Paydock php SDK provides a php friendly wrapper around the Paydock API.",
     "require": {
+        "php": "^5.3.3 || ^7.0"
     },
     "require-dev": {
         "phpunit/phpunit": "^6.2"
