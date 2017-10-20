@@ -4,9 +4,6 @@ namespace Paydock\Sdk;
 require_once(__DIR__."/../tools/ServiceHelper.php");
 require_once(__DIR__."/../tools/JsonTools.php");
 
-// TODO: move this to the service helper class
-use Paydock\Sdk\serviceHelper;
-
 /*
  * This file is part of the Paydock.Sdk package.
  *
@@ -191,7 +188,7 @@ final class Charges
         $url = "charges";
         if (!empty($this->chargeId)) {
             $url .= "/" . urlencode($this->chargeId);
-        } else {
+        } else if (!empty($this->chargeFilter)) {
             $url .= "?";
             foreach ($this->chargeFilter as $key => $value) {
                 $url .= urlencode($key) . "=" . urlencode($value);
@@ -199,8 +196,6 @@ final class Charges
         }
         return $url;
     }
-
-    // TODO: add: archived list
 
     public function call()
     {

@@ -97,3 +97,5 @@ use Paydock\Sdk\ResponseException;
         throw $ex;
     }
 }
+
+use Paydock\Sdk\serviceHelper;

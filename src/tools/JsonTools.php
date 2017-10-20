@@ -9,7 +9,7 @@ namespace Paydock\Sdk;
  * For the full copyright and license information, please view
  * the LICENSE file which was distributed with this source code.
  */
- final class JsonTools
+final class JsonTools
 {
     public function CleanArray($array)
     {
