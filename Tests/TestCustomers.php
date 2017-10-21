@@ -45,5 +45,45 @@ final class TestCustomers extends TestCase
         
         $this->assertEquals("201", $response["status"]);
     }
+    
+    public function testGetCustomers()
+    {
+        $svc = new Customers();
+        $response = $svc->get()
+            ->call();
+        
+        $this->assertEquals("200", $response["status"]);
+    }
+    
+    public function testGetbyId()
+    {
+        $svc = new Customers();
+        $response = $svc->create("John", "Smith")
+            ->withCreditCard("58377235377aea03343240cc", "4111111111111111", "2020", "10", "Test Name", "123")
+            ->call();
+
+        $response = $svc->get()
+            ->withCustomerId($response["resource"]["data"]["_id"])
+            ->call();
+
+        $this->assertEquals("200", $response["status"]);
+    }
+
+    public function testGetByReference()
+    {
+        $svc = new Customers();
+
+        $reference = uniqid();
+        $response = $svc->create("John", "Smith", "test@test.com", "+61414958111", $reference)
+            ->withCreditCard("58377235377aea03343240cc", "4111111111111111", "2020", "10", "Test Name", "123")
+            ->call();
+
+        $response = $svc->get()
+            ->withParameters(["reference" => $reference])
+            ->call();
+
+        $this->assertEquals("200", $response["status"]);
+        $this->assertEquals(1, $response["resource"]["count"]);
+    }
 }
 ?>

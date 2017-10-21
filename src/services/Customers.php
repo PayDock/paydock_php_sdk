@@ -18,13 +18,27 @@ final class Customers
     private $token;
     private $customerData;
     private $paymentSourceData;
+    private $customerId;
+    private $customerFilter;
     private $meta;
-    private $actionMap = array("create" => "POST");
+    private $actionMap = array("create" => "POST", "get" => "GET");
     
     public function create($firstName = "", $lastName = "", $email = "", $phone = "", $reference = "")
     {
         $this->action = "create";
         $this->customerData = ["first_name" => $firstName, "last_name" => $lastName, "email" => $email, "phone" => $phone, "reference" => $reference];
+        return $this;
+    }
+    
+    public function get()
+    {
+        $this->action = "get";
+        return $this;
+    }
+    
+    public function withCustomerId($customerId)
+    {
+        $this->customerId = $customerId;
         return $this;
     }
 
@@ -46,11 +60,19 @@ final class Customers
         return $this;
     }
     
+    public function withParameters($filter)
+    {
+        $this->customerFilter = $filter;
+        return $this;
+    }
+    
     public function includeAddress($addressLine1, $addressLine2, $addressState, $addressCountry, $addressCity, $addressPostcode)
     {
         $this->paymentSourceData += ["address_line1" => $addressLine1, "address_line2" => $addressLine2, "address_state" => $addressState, "address_country" => $addressCountry, "address_city" => $addressCity, "address_postcode" => $addressPostcode];
         return $this;
     }
+
+    // TODO: add: get payment sources, update customer, archive customer
 
     public function includeMeta($meta)
     {
@@ -59,6 +81,17 @@ final class Customers
     }
 
     private function buildJson()
+    {
+        switch ($this->action)
+        {
+            case "create":
+                return $this->buildJsonCreate();
+        }
+
+        return "";
+    }
+
+    private function buildJsonCreate()
     {
         $arrayData = $this->customerData;
 
@@ -80,7 +113,26 @@ final class Customers
 
     private function buildUrl()
     {
+        switch ($this->action)
+        {
+            case "get":
+                return $this->buildGetUrl();
+        }
         return "customers";
+    }
+
+    private function buildGetUrl()
+    {
+        $url = "customers";
+        if (!empty($this->customerId)) {
+            $url .= "/" . urlencode($this->customerId);
+        } else if (!empty($this->customerFilter)) {
+            $url .= "?";
+            foreach ($this->customerFilter as $key => $value) {
+                $url .= urlencode($key) . "=" . urlencode($value);
+            }
+        }
+        return $url;
     }
 
     public function call()
