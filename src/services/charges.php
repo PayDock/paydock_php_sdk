@@ -114,7 +114,7 @@ final class Charges
 
         $jsonTools = new JsonTools();
         $arrayData = $jsonTools->CleanArray($arrayData);
-        
+
         return json_encode($arrayData);
     }
 
