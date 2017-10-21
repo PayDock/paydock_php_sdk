@@ -3,6 +3,7 @@ namespace Paydock\Sdk;
 
 require_once(__DIR__."/../tools/ServiceHelper.php");
 require_once(__DIR__."/../tools/JsonTools.php");
+require_once(__DIR__."/../tools/UrlTools.php");
 
 /*
  * This file is part of the Paydock.Sdk package.
@@ -113,26 +114,13 @@ final class Customers
 
     private function buildUrl()
     {
+        $urlTools = new UrlTools();
         switch ($this->action)
         {
             case "get":
-                return $this->buildGetUrl();
+                return $urlTools->BuildQueryStringUrl("customers", $this->customerId, $this->customerFilter);
         }
         return "customers";
-    }
-
-    private function buildGetUrl()
-    {
-        $url = "customers";
-        if (!empty($this->customerId)) {
-            $url .= "/" . urlencode($this->customerId);
-        } else if (!empty($this->customerFilter)) {
-            $url .= "?";
-            foreach ($this->customerFilter as $key => $value) {
-                $url .= urlencode($key) . "=" . urlencode($value);
-            }
-        }
-        return $url;
     }
 
     public function call()

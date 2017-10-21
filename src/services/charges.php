@@ -3,6 +3,7 @@ namespace Paydock\Sdk;
 
 require_once(__DIR__."/../tools/ServiceHelper.php");
 require_once(__DIR__."/../tools/JsonTools.php");
+require_once(__DIR__."/../tools/UrlTools.php");
 
 /*
  * This file is part of the Paydock.Sdk package.
@@ -173,9 +174,10 @@ final class Charges
 
     private function buildUrl()
     {
+        $urlTools = new UrlTools();
         switch ($this->action) {
             case "get":
-                return $this->buildGetUrl();
+                return $urlTools->BuildQueryStringUrl("charges", $this->chargeId, $this->chargeFilter);
             case "refund":
                 return "charges/" . urlencode($this->chargeId) . "/refunds";
             case "archive":
@@ -183,20 +185,6 @@ final class Charges
         }
 
         return "charges";
-    }
-
-    private function buildGetUrl()
-    {
-        $url = "charges";
-        if (!empty($this->chargeId)) {
-            $url .= "/" . urlencode($this->chargeId);
-        } else if (!empty($this->chargeFilter)) {
-            $url .= "?";
-            foreach ($this->chargeFilter as $key => $value) {
-                $url .= urlencode($key) . "=" . urlencode($value);
-            }
-        }
-        return $url;
     }
 
     public function call()
