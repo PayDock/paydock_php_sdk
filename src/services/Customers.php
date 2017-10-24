@@ -4,6 +4,7 @@ namespace Paydock\Sdk;
 require_once(__DIR__."/../tools/ServiceHelper.php");
 require_once(__DIR__."/../tools/JsonTools.php");
 require_once(__DIR__."/../tools/UrlTools.php");
+require_once(__DIR__."/../config.php");
 
 /*
  * This file is part of the Paydock.Sdk package.
@@ -21,8 +22,10 @@ final class Customers
     private $paymentSourceData;
     private $customerId;
     private $customerFilter;
+    private $queryToken;
     private $meta;
-    private $actionMap = array("create" => "POST", "get" => "GET");
+    private $actionMap = array("create" => "POST", "get" => "GET", "payment_sources" => "GET");
+    private $publicCalls = ["payment_sources"];
     
     public function create($firstName = "", $lastName = "", $email = "", $phone = "", $reference = "")
     {
@@ -34,6 +37,13 @@ final class Customers
     public function get()
     {
         $this->action = "get";
+        return $this;
+    }
+    
+    public function getPaymentSources($queryToken)
+    {
+        $this->action = "payment_sources";
+        $this->queryToken = $queryToken;
         return $this;
     }
     
@@ -73,7 +83,7 @@ final class Customers
         return $this;
     }
 
-    // TODO: add: get payment sources, update customer, archive customer
+    // TODO: add: update customer, archive customer
 
     public function includeMeta($meta)
     {
@@ -119,6 +129,9 @@ final class Customers
         {
             case "get":
                 return $urlTools->BuildQueryStringUrl("customers", $this->customerId, $this->customerFilter);
+            case "payment_sources":
+                $config = new Config();
+                return "customers/payment_sources?query_token=" . urlencode($this->queryToken) . "&public_key=". urlencode($config::$publicKey);
         }
         return "customers";
     }
@@ -128,7 +141,11 @@ final class Customers
         $data = $this->buildJson();
         $url = $this->buildUrl();
 
-        return ServiceHelper::privateApiCall($this->actionMap[$this->action], $url, $data);
+        if (in_array($this->action, $this->publicCalls)) {
+            return ServiceHelper::privateApiCall($this->actionMap[$this->action], $url, $data);
+        } else {
+            return ServiceHelper::privateApiCall($this->actionMap[$this->action], $url, $data);
+        }
     }
 }
 ?>
