@@ -23,8 +23,9 @@ final class Customers
     private $customerId;
     private $customerFilter;
     private $queryToken;
+    private $defaultPaymentSource;
     private $meta;
-    private $actionMap = array("create" => "POST", "get" => "GET", "payment_sources" => "GET");
+    private $actionMap = array("create" => "POST", "get" => "GET", "payment_sources" => "GET", "update" => "POST", "archive" => "DELETE");
     private $publicCalls = ["payment_sources"];
     
     public function create($firstName = "", $lastName = "", $email = "", $phone = "", $reference = "")
@@ -44,6 +45,21 @@ final class Customers
     {
         $this->action = "payment_sources";
         $this->queryToken = $queryToken;
+        return $this;
+    }
+
+    public function update($customerId, $firstName = "", $lastName = "", $email = "", $phone = "", $reference = "")
+    {
+        $this->action = "update";
+        $this->customerId = $customerId;
+        $this->customerData = ["first_name" => $firstName, "last_name" => $lastName, "email" => $email, "phone" => $phone, "reference" => $reference];
+        return $this;
+    }
+
+    public function archive($customerId)
+    {
+        $this->action = "archive";
+        $this->customerId = $customerId;
         return $this;
     }
     
@@ -76,14 +92,17 @@ final class Customers
         $this->customerFilter = $filter;
         return $this;
     }
+
+    public function withDefaultPaymentSource($defaultPaymentSource)
+    {
+        $this->defaultPaymentSource = $defaultPaymentSource;
+    }
     
     public function includeAddress($addressLine1, $addressLine2, $addressState, $addressCountry, $addressCity, $addressPostcode)
     {
         $this->paymentSourceData += ["address_line1" => $addressLine1, "address_line2" => $addressLine2, "address_state" => $addressState, "address_country" => $addressCountry, "address_city" => $addressCity, "address_postcode" => $addressPostcode];
         return $this;
     }
-
-    // TODO: add: update customer, archive customer
 
     public function includeMeta($meta)
     {
@@ -97,6 +116,8 @@ final class Customers
         {
             case "create":
                 return $this->buildJsonCreate();
+            case "update":
+                return $this->buildJsonUpdate();
         }
 
         return "";
@@ -121,6 +142,24 @@ final class Customers
         
         return json_encode($arrayData);
     }
+    
+    private function buildJsonUpdate()
+    {
+        $arrayData = $this->customerData;
+
+        if (!empty($this->token)) {
+            $arrayData += ["token" => $this->token];
+        } else if (!empty($this->paymentSourceData)) {
+            $arrayData["payment_source"] = $this->paymentSourceData;
+        } else if (!empty($this->defaultPaymentSource)) {
+            $arrayData["default_source"] = $this->defaultPaymentSource;
+        }
+
+        $jsonTools = new JsonTools();
+        $arrayData = $jsonTools->CleanArray($arrayData);
+        
+        return json_encode($arrayData);
+    }
 
     private function buildUrl()
     {
@@ -132,6 +171,9 @@ final class Customers
             case "payment_sources":
                 $config = new Config();
                 return "customers/payment_sources?query_token=" . urlencode($this->queryToken) . "&public_key=". urlencode($config::$publicKey);
+            case "update":
+            case "archive":
+                return "customers/" . urlencode($this->customerId);
         }
         return "customers";
     }

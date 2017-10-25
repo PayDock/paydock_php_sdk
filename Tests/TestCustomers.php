@@ -106,5 +106,40 @@ final class TestCustomers extends TestCase
 
         $this->assertEquals("200", $response["status"]);
     }
+    
+    public function testUpdateCustomer()
+    {
+        $svc = new Customers();
+
+        $reference = uniqid();
+        $response = $svc->create("John", "Smith", "test@test.com", "+61414958111", $reference)
+            ->withCreditCard("58377235377aea03343240cc", "4111111111111111", "2020", "10", "Test Name", "123")
+            ->call();
+
+        $response = $svc->update($response["resource"]["data"]["_id"], "John1", "Smith1", "test@test1.com", "+61414958111")
+            ->call();
+
+        $this->assertEquals("200", $response["status"]);
+        $this->assertEquals("John1", $response["resource"]["data"]["first_name"]);
+        $this->assertEquals("Smith1", $response["resource"]["data"]["last_name"]);
+        $this->assertEquals("test@test1.com", $response["resource"]["data"]["email"]);
+    }
+    
+    public function testArchive()
+    {
+        $svc = new Customers();
+
+        $reference = uniqid();
+        $response = $svc->create("John", "Smith", "test@test.com", "+61414958111", $reference)
+            ->withCreditCard("58377235377aea03343240cc", "4111111111111111", "2020", "10", "Test Name", "123")
+            ->call();
+
+        echo($response["resource"]["data"]["_id"]);
+
+        $response = $svc->archive($response["resource"]["data"]["_id"])
+            ->call();
+
+        $this->assertEquals("200", $response["status"]);
+    }
 }
 ?>
