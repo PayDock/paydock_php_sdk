@@ -3,10 +3,12 @@
 require_once(__DIR__."/../src/config.php");
 require_once(__DIR__."/../src/ResponseException.php");
 require_once(__DIR__."/../src/services/Customers.php");
+require_once(__DIR__."/../src/services/Tokens.php");
 
 use PHPUnit\Framework\TestCase;
 use Paydock\Sdk\config;
-use Paydock\Sdk\customers;
+use Paydock\Sdk\Customers;
+use Paydock\Sdk\Tokens;
 use Paydock\Sdk\ResponseException;
 
 /**
@@ -21,7 +23,19 @@ final class TestCustomers extends TestCase
 
     public function testCreateCustomerWithToken()
     {
-        $this->markTestIncomplete("not implemented yet");
+        $svc = new Tokens();
+        $response = $svc->create("John", "Smith")
+            ->withCreditCard("58377235377aea03343240cc", "4111111111111111", "2020", "10", "Test Name", "123")
+            ->call();
+
+        $tokenId = $response["resource"]["data"];
+
+        $customerSvc = new Customers();
+        $response = $customerSvc->create("John", "Smith")
+            ->withToken($tokenId)
+            ->call();
+
+        $this->assertEquals("201", $response["status"]);
     }
 
     public function testCreateCustomerWithCard()

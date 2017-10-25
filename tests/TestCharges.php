@@ -4,11 +4,13 @@ require_once(__DIR__."/../src/config.php");
 require_once(__DIR__."/../src/ResponseException.php");
 require_once(__DIR__."/../src/services/Charges.php");
 require_once(__DIR__."/../src/services/Customers.php");
+require_once(__DIR__."/../src/services/Tokens.php");
 
 use PHPUnit\Framework\TestCase;
 use Paydock\Sdk\config;
 use Paydock\Sdk\charges;
 use Paydock\Sdk\Customers;
+use Paydock\Sdk\Tokens;
 use Paydock\Sdk\ResponseException;
 
 /**
@@ -163,11 +165,6 @@ final class TestCharges extends TestCase
         $this->assertEquals("201", $response["status"]);
     }
 
-    public function testCreateWithToken()
-    {
-        $this->markTestIncomplete("not implemented yet");
-    }
-
     public function testArchive()
     {
         $svc = new Charges();
@@ -181,6 +178,23 @@ final class TestCharges extends TestCase
             ->call();
 
         $this->assertEquals("200", $response["status"]);
+    }
+    
+    public function testCreateWithToken()
+    {
+        $svc = new Tokens();
+        $response = $svc->create("John", "Smith")
+            ->withCreditCard("58377235377aea03343240cc", "4111111111111111", "2020", "10", "Test Name", "123")
+            ->call();
+
+        $tokenId = $response["resource"]["data"];
+        
+        $chargeSvc = new Charges();
+        $response = $chargeSvc->create(10, "AUD")
+            ->withToken($tokenId)
+            ->call();
+
+        $this->assertEquals("201", $response["status"]);
     }
 }
 ?>
