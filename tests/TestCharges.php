@@ -1,6 +1,6 @@
 <?php
 
-require_once(__DIR__."/../src/config.php");
+require_once(__DIR__."/Shared/TestBase.php");
 require_once(__DIR__."/../src/ResponseException.php");
 require_once(__DIR__."/../src/services/Charges.php");
 require_once(__DIR__."/../src/services/Customers.php");
@@ -16,18 +16,13 @@ use Paydock\Sdk\ResponseException;
 /**
  * @covers charges
  */
-final class TestCharges extends TestCase
+final class TestCharges extends TestBase
 {
-    protected function setUp()
-    {
-        Config::initialise("sandbox", "fccbf57c8a65a609ed86edd417177905bfd5a99b", "cc5bedb53a1b64491b5b468a2486b32cc250cda2");
-    }
-
     public function testCreateChargeWithCard()
     {
         $svc = new Charges();
         $response = $svc->create(100, "AUD")
-            ->withCreditCard("58377235377aea03343240cc", "4111111111111111", "2020", "10", "Test Name", "123")
+            ->withCreditCard(self::creditGateway, "4111111111111111", "2020", "10", "Test Name", "123")
             ->call();
         
         $this->assertEquals("201", $response["status"]);
@@ -37,7 +32,7 @@ final class TestCharges extends TestCase
     {
         $svc = new Charges();
         $response = $svc->create(100, "AUD")
-            ->withBankAccount("58814949ca63b81cbd2acad0", "test", "012003", "456456")
+            ->withBankAccount(self::bsbGateway, "test", "012003", "456456")
             ->includeCustomerDetails("John", "Smith", "test@email.com", "+61414111111")
             ->call();
         
@@ -63,7 +58,7 @@ final class TestCharges extends TestCase
         try
         {
             $response = $svc->create(100, "AUD")
-                ->withCreditCard("58377235377aea03343240cc", "4111111111111111", "2020", "10", "Test Name", "123")
+                ->withCreditCard(self::creditGateway, "4111111111111111", "2020", "10", "Test Name", "123")
                 ->call();
         } catch (ResponseException $ex) {
             $this->assertEquals("400", $ex->Status);
@@ -102,7 +97,7 @@ final class TestCharges extends TestCase
         $svc = new Charges();
 
         $response = $svc->create(10, "AUD")
-            ->withCreditCard("58377235377aea03343240cc", "4111111111111111", "2021", "10", "Test Name", "123")
+            ->withCreditCard(self::creditGateway, "4111111111111111", "2021", "10", "Test Name", "123")
             ->call();
 
         $response = $svc->get()
@@ -118,7 +113,7 @@ final class TestCharges extends TestCase
 
         $reference = uniqid();
         $response = $svc->create(10, "AUD", "", $reference)
-            ->withCreditCard("58377235377aea03343240cc", "4111111111111111", "2021", "10", "Test Name", "123")
+            ->withCreditCard(self::creditGateway, "4111111111111111", "2021", "10", "Test Name", "123")
             ->call();
 
         $response = $svc->get()
@@ -133,7 +128,7 @@ final class TestCharges extends TestCase
     {
         $svc = new Charges();
         $response = $svc->create(10, "AUD")
-            ->withBankAccount("58814949ca63b81cbd2acad0", "test", "012003", "456456")
+            ->withBankAccount(self::bsbGateway, "test", "012003", "456456")
             ->includeCustomerDetails("John", "Smith", "test@email.com", "+61414111111")
             ->call();
 
@@ -152,7 +147,7 @@ final class TestCharges extends TestCase
     {
         $custSvc = new Customers();
         $response = $custSvc->create("John", "Smith")
-            ->withCreditCard("58377235377aea03343240cc", "4111111111111111", "2020", "10", "Test Name", "123")
+            ->withCreditCard(self::creditGateway, "4111111111111111", "2020", "10", "Test Name", "123")
             ->call();
 
         $customerId = $response["resource"]["data"]["_id"];
@@ -169,7 +164,7 @@ final class TestCharges extends TestCase
     {
         $svc = new Charges();
         $response = $svc->create(10, "AUD")
-            ->withCreditCard("58377235377aea03343240cc", "4111111111111111", "2021", "10", "Test Name", "123")
+            ->withCreditCard(self::creditGateway, "4111111111111111", "2021", "10", "Test Name", "123")
             ->call();
 
         $chargeId = $response["resource"]["data"]["_id"];
@@ -184,7 +179,7 @@ final class TestCharges extends TestCase
     {
         $svc = new Tokens();
         $response = $svc->create("John", "Smith")
-            ->withCreditCard("58377235377aea03343240cc", "4111111111111111", "2020", "10", "Test Name", "123")
+            ->withCreditCard(self::creditGateway, "4111111111111111", "2020", "10", "Test Name", "123")
             ->call();
 
         $tokenId = $response["resource"]["data"];
