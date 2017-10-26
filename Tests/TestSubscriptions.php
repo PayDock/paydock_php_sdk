@@ -81,5 +81,21 @@ final class TestSubscriptions extends TestCase
 
         $this->assertEquals("201", $response["status"]);
     }
+    
+    public function testUpdate()
+    {
+        $svc = new Subscriptions();
+        $response = $svc->create(100, "AUD")
+            ->withCreditCard("58377235377aea03343240cc", "4111111111111111", "2020", "10", "Test Name", "123")
+            ->withSchedule("month", 1)
+            ->call();
+
+        $response = $svc->update($response["resource"]["data"]["_id"], 101)
+            ->withSchedule("month", 1)
+            ->call();
+        
+        $this->assertEquals("200", $response["status"]);
+        $this->assertEquals(101, $response["resource"]["data"]["amount"]);
+    }
 }
 ?>

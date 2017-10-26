@@ -17,17 +17,26 @@ final class Subscriptions
 {
     private $chargeData;
     private $token;
+    private $subscriptionId;
     private $paymentSourceData = array();
     private $customerData = array();
     private $scheduleData = array();
     private $action;
     private $meta;
-    private $actionMap = ["create" => "POST"];
+    private $actionMap = ["create" => "POST", "update" => "POST"];
     
     public function create($amount, $currency, $description = "", $reference = "")
     {
         $this->chargeData = ["amount" => $amount, "currency"=>$currency, "description"=>$description, "reference" => $reference];
         $this->action = "create";
+        return $this;
+    }
+
+    public function update($subscriptionId, $amount, $description = "", $reference = "", $paymentSourceId = "")
+    {
+        $this->subscriptionId = $subscriptionId;
+        $this->chargeData = ["amount" => $amount, "description"=>$description, "reference" => $reference, "payment_source_id" => $paymentSourceId];
+        $this->action = "update";
         return $this;
     }
 
@@ -105,7 +114,7 @@ final class Subscriptions
             $arrayData["customer"]["payment_source"] = $this->paymentSourceData;
         }
         
-        if (!empty($this->meta)) {
+        if (!empty($this->scheduleData)) {
             $arrayData += ["schedule" => $this->scheduleData];
         }
 
@@ -119,11 +128,32 @@ final class Subscriptions
         return json_encode($arrayData);
     }
     
+    private function buildUpdateJson()
+    {
+        $arrayData = [
+            'amount'      => $this->chargeData["amount"],
+            'reference'   => $this->chargeData["reference"],
+            'description'   => $this->chargeData["description"],
+            'payment_source_id'   => $this->chargeData["payment_source_id"]
+        ];
+        
+        if (!empty($this->schedule)) {
+            $arrayData += ["schedule" => $this->scheduleData];
+        }
+
+        $jsonTools = new JsonTools();
+        $arrayData = $jsonTools->CleanArray($arrayData);
+
+        return json_encode($arrayData);
+    }
+    
     private function buildJson()
     {
         switch ($this->action) {
             case "create":
                 return $this->buildCreateJson();
+            case "update":
+                return $this->buildUpdateJson();
         }
 
         return "";
@@ -133,7 +163,12 @@ final class Subscriptions
     {
         $urlTools = new UrlTools();
 
-        return "charges";
+        switch ($this->action) {
+            case "update":
+                return "subscriptions/" . urlencode($this->subscriptionId);;
+        }
+
+        return "subscriptions";
     }
 
     public function call()
