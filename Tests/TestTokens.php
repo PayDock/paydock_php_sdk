@@ -10,7 +10,7 @@ use Paydock\Sdk\tokens;
 use Paydock\Sdk\ResponseException;
 
 /**
- * @covers charges
+ * @covers tokens
  */
 final class TestCustomers extends TestCase
 {
