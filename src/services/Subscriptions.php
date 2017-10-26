@@ -23,7 +23,7 @@ final class Subscriptions
     private $scheduleData = array();
     private $action;
     private $meta;
-    private $actionMap = ["create" => "POST", "update" => "POST"];
+    private $actionMap = ["create" => "POST", "update" => "POST", "get" => "GET"];
     
     public function create($amount, $currency, $description = "", $reference = "")
     {
@@ -37,6 +37,18 @@ final class Subscriptions
         $this->subscriptionId = $subscriptionId;
         $this->chargeData = ["amount" => $amount, "description"=>$description, "reference" => $reference, "payment_source_id" => $paymentSourceId];
         $this->action = "update";
+        return $this;
+    }
+    
+    public function get()
+    {
+        $this->action = "get";
+        return $this;
+    }
+    
+    public function withSubscriptionId($subscriptionId)
+    {
+        $this->subscriptionId = $subscriptionId;
         return $this;
     }
 
@@ -165,7 +177,9 @@ final class Subscriptions
 
         switch ($this->action) {
             case "update":
-                return "subscriptions/" . urlencode($this->subscriptionId);;
+                return "subscriptions/" . urlencode($this->subscriptionId);
+            case "get":
+                return "subscriptions" . (empty($this->subscriptionId) ? "/" . urlencode($this->subscriptionId) : "");
         }
 
         return "subscriptions";
