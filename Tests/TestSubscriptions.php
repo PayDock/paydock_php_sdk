@@ -55,8 +55,8 @@ final class TestSubscriptions extends TestCase
 
         $customerId = $response["resource"]["data"]["_id"];
 
-        $chargeSvc = new Subscriptions();
-        $response = $chargeSvc->create(10, "AUD")
+        $subscriptionSvc = new Subscriptions();
+        $response = $subscriptionSvc->create(10, "AUD")
             ->withCustomerId($customerId)
             ->withSchedule("month", 1)
             ->call();
@@ -73,8 +73,8 @@ final class TestSubscriptions extends TestCase
 
         $tokenId = $response["resource"]["data"];
         
-        $chargeSvc = new Subscriptions();
-        $response = $chargeSvc->create(10, "AUD")
+        $subscriptionSvc = new Subscriptions();
+        $response = $subscriptionSvc->create(10, "AUD")
             ->withToken($tokenId)
             ->withSchedule("month", 1)
             ->call();
@@ -121,6 +121,29 @@ final class TestSubscriptions extends TestCase
             ->call();
         
         $this->assertEquals("200", $response["status"]);
+    }
+    
+    public function testGetByReference()
+    {
+        $custSvc = new Customers();
+        $response = $custSvc->create("John", "Smith")
+            ->withCreditCard("58377235377aea03343240cc", "4111111111111111", "2020", "10", "Test Name", "123")
+            ->call();
+
+        $customerId = $response["resource"]["data"]["_id"];
+
+        $subscriptionSvc = new Subscriptions();
+        $response = $subscriptionSvc->create(10, "AUD")
+            ->withCustomerId($customerId)
+            ->withSchedule("month", 1)
+            ->call();
+
+        $response = $subscriptionSvc->get()
+            ->withParameters(["customer_id" => $customerId])
+            ->call();
+        
+        $this->assertEquals("200", $response["status"]);
+        $this->assertEquals(1, $response["resource"]["count"]);
     }
 }
 ?>

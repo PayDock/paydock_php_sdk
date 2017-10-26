@@ -21,6 +21,7 @@ final class Subscriptions
     private $paymentSourceData = array();
     private $customerData = array();
     private $scheduleData = array();
+    private $subscriptionFilter;
     private $action;
     private $meta;
     private $actionMap = ["create" => "POST", "update" => "POST", "get" => "GET"];
@@ -49,6 +50,12 @@ final class Subscriptions
     public function withSubscriptionId($subscriptionId)
     {
         $this->subscriptionId = $subscriptionId;
+        return $this;
+    }
+    
+    public function withParameters($filter)
+    {
+        $this->subscriptionFilter = $filter;
         return $this;
     }
 
@@ -179,7 +186,7 @@ final class Subscriptions
             case "update":
                 return "subscriptions/" . urlencode($this->subscriptionId);
             case "get":
-                return "subscriptions" . (empty($this->subscriptionId) ? "/" . urlencode($this->subscriptionId) : "");
+                return $urlTools->BuildQueryStringUrl("subscriptions", $this->subscriptionId, $this->subscriptionFilter);
         }
 
         return "subscriptions";
