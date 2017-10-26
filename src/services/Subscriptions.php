@@ -24,26 +24,33 @@ final class Subscriptions
     private $subscriptionFilter;
     private $action;
     private $meta;
-    private $actionMap = ["create" => "POST", "update" => "POST", "get" => "GET"];
+    private $actionMap = ["create" => "POST", "update" => "POST", "get" => "GET", "delete" => "DELETE"];
     
     public function create($amount, $currency, $description = "", $reference = "")
     {
-        $this->chargeData = ["amount" => $amount, "currency"=>$currency, "description"=>$description, "reference" => $reference];
         $this->action = "create";
+        $this->chargeData = ["amount" => $amount, "currency"=>$currency, "description"=>$description, "reference" => $reference];
         return $this;
     }
 
     public function update($subscriptionId, $amount, $description = "", $reference = "", $paymentSourceId = "")
     {
+        $this->action = "update";
         $this->subscriptionId = $subscriptionId;
         $this->chargeData = ["amount" => $amount, "description"=>$description, "reference" => $reference, "payment_source_id" => $paymentSourceId];
-        $this->action = "update";
         return $this;
     }
     
     public function get()
     {
         $this->action = "get";
+        return $this;
+    }
+    
+    public function delete($subscriptionId)
+    {
+        $this->action = "delete";
+        $this->subscriptionId = $subscriptionId;
         return $this;
     }
     
@@ -187,6 +194,8 @@ final class Subscriptions
                 return "subscriptions/" . urlencode($this->subscriptionId);
             case "get":
                 return $urlTools->BuildQueryStringUrl("subscriptions", $this->subscriptionId, $this->subscriptionFilter);
+            case "delete":
+                return "subscriptions/" . urlencode($this->subscriptionId);
         }
 
         return "subscriptions";
