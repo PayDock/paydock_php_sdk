@@ -10,12 +10,12 @@ use Paydock\Sdk\config;
  */
 class TestBase extends TestCase
 {
-    const creditGateway = "58377235377aea03343240cc";
-    const bsbGateway = "58814949ca63b81cbd2acad0";
+    const creditGateway = "<credit card gateway id here>";
+    const bsbGateway = "<bank account gateway id here>";
 
     protected function setUp()
     {
-        Config::initialise("sandbox", "fccbf57c8a65a609ed86edd417177905bfd5a99b", "cc5bedb53a1b64491b5b468a2486b32cc250cda2");
+        Config::initialise("sandbox", "<private key here>", "<public key here>");
     }
 }
 ?>
