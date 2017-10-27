@@ -1,6 +1,7 @@
 <?php
 
 require_once(__DIR__."/Shared/TestBase.php");
+require_once(__DIR__."/Shared/ApiHelpers.php");
 require_once(__DIR__."/../src/ResponseException.php");
 require_once(__DIR__."/../src/services/Charges.php");
 require_once(__DIR__."/../src/services/Customers.php");
@@ -20,10 +21,7 @@ final class TestCharges extends TestBase
 {
     public function testCreateChargeWithCard()
     {
-        $svc = new Charges();
-        $response = $svc->create(100, "AUD")
-            ->withCreditCard(self::creditGateway, "4111111111111111", "2020", "10", "Test Name", "123")
-            ->call();
+        $response = ApiHelpers::createCharge(self::creditGateway);
         
         $this->assertEquals("201", $response["status"]);
     }
@@ -53,13 +51,10 @@ final class TestCharges extends TestBase
     public function testCreateChargeWithLowTimeout()
     {
         Config::$timeoutMilliseconds = 10;
-        $svc = new Charges();
 
         try
         {
-            $response = $svc->create(100, "AUD")
-                ->withCreditCard(self::creditGateway, "4111111111111111", "2020", "10", "Test Name", "123")
-                ->call();
+            ApiHelpers::createCharge(self::creditGateway);
         } catch (ResponseException $ex) {
             $this->assertEquals("400", $ex->Status);
         }
@@ -96,9 +91,7 @@ final class TestCharges extends TestBase
     {
         $svc = new Charges();
 
-        $response = $svc->create(10, "AUD")
-            ->withCreditCard(self::creditGateway, "4111111111111111", "2021", "10", "Test Name", "123")
-            ->call();
+        $response = ApiHelpers::createCharge(self::creditGateway);
 
         $response = $svc->get()
             ->withChargeId($response["resource"]["data"]["_id"])
@@ -127,10 +120,7 @@ final class TestCharges extends TestBase
     public function testRefund()
     {
         $svc = new Charges();
-        $response = $svc->create(10, "AUD")
-            ->withBankAccount(self::bsbGateway, "test", "012003", "456456")
-            ->includeCustomerDetails("John", "Smith", "test@email.com", "+61414111111")
-            ->call();
+        $response = ApiHelpers::createCharge(self::creditGateway);
 
         $chargeId = $response["resource"]["data"]["_id"];
         
@@ -145,10 +135,7 @@ final class TestCharges extends TestBase
     
     public function testCreateWithCustomerId()
     {
-        $custSvc = new Customers();
-        $response = $custSvc->create("John", "Smith")
-            ->withCreditCard(self::creditGateway, "4111111111111111", "2020", "10", "Test Name", "123")
-            ->call();
+        $response = ApiHelpers::createCustomer(self::creditGateway);
 
         $customerId = $response["resource"]["data"]["_id"];
 
@@ -163,9 +150,7 @@ final class TestCharges extends TestBase
     public function testArchive()
     {
         $svc = new Charges();
-        $response = $svc->create(10, "AUD")
-            ->withCreditCard(self::creditGateway, "4111111111111111", "2021", "10", "Test Name", "123")
-            ->call();
+        $response = ApiHelpers::createCharge(self::creditGateway);
 
         $chargeId = $response["resource"]["data"]["_id"];
 
@@ -177,10 +162,7 @@ final class TestCharges extends TestBase
     
     public function testCreateWithToken()
     {
-        $svc = new Tokens();
-        $response = $svc->create("John", "Smith")
-            ->withCreditCard(self::creditGateway, "4111111111111111", "2020", "10", "Test Name", "123")
-            ->call();
+        $response = ApiHelpers::createToken(self::creditGateway);
 
         $tokenId = $response["resource"]["data"];
         

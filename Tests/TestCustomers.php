@@ -1,6 +1,7 @@
 <?php
 
-require_once(__DIR__."/TestBase.php");
+require_once(__DIR__."/Shared/TestBase.php");
+require_once(__DIR__."/Shared/ApiHelpers.php");
 require_once(__DIR__."/../src/ResponseException.php");
 require_once(__DIR__."/../src/services/Customers.php");
 require_once(__DIR__."/../src/services/Tokens.php");
@@ -18,10 +19,7 @@ final class TestCustomers extends TestBase
 {
     public function testCreateCustomerWithToken()
     {
-        $svc = new Tokens();
-        $response = $svc->create("John", "Smith")
-            ->withCreditCard(self::creditGateway, "4111111111111111", "2020", "10", "Test Name", "123")
-            ->call();
+        $response = ApiHelpers::createToken(self::creditGateway);
 
         $tokenId = $response["resource"]["data"];
 
@@ -35,10 +33,7 @@ final class TestCustomers extends TestBase
 
     public function testCreateCustomerWithCard()
     {
-        $svc = new Customers();
-        $response = $svc->create("John", "Smith")
-            ->withCreditCard(self::creditGateway, "4111111111111111", "2020", "10", "Test Name", "123")
-            ->call();
+        $response = ApiHelpers::createCustomer(self::creditGateway);
         
         $this->assertEquals("201", $response["status"]);
     }
@@ -66,11 +61,9 @@ final class TestCustomers extends TestBase
     
     public function testGetbyId()
     {
-        $svc = new Customers();
-        $response = $svc->create("John", "Smith")
-            ->withCreditCard(self::creditGateway, "4111111111111111", "2020", "10", "Test Name", "123")
-            ->call();
+        $response = ApiHelpers::createCustomer(self::creditGateway);
 
+        $svc = new Customers();
         $response = $svc->get()
             ->withCustomerId($response["resource"]["data"]["_id"])
             ->call();
@@ -118,13 +111,9 @@ final class TestCustomers extends TestBase
     
     public function testUpdateCustomer()
     {
+        $response = ApiHelpers::createCustomer(self::creditGateway);
+
         $svc = new Customers();
-
-        $reference = uniqid();
-        $response = $svc->create("John", "Smith", "test@test.com", "+61414958111", $reference)
-            ->withCreditCard(self::creditGateway, "4111111111111111", "2020", "10", "Test Name", "123")
-            ->call();
-
         $response = $svc->update($response["resource"]["data"]["_id"], "John1", "Smith1", "test@test1.com", "+61414958111")
             ->call();
 
@@ -136,15 +125,9 @@ final class TestCustomers extends TestBase
     
     public function testArchive()
     {
+        $response = ApiHelpers::createCustomer(self::creditGateway);
+
         $svc = new Customers();
-
-        $reference = uniqid();
-        $response = $svc->create("John", "Smith", "test@test.com", "+61414958111", $reference)
-            ->withCreditCard(self::creditGateway, "4111111111111111", "2020", "10", "Test Name", "123")
-            ->call();
-
-        echo($response["resource"]["data"]["_id"]);
-
         $response = $svc->archive($response["resource"]["data"]["_id"])
             ->call();
 
