@@ -33,11 +33,11 @@ final class Subscriptions
         return $this;
     }
 
-    public function update($subscriptionId, $amount, $description = "", $reference = "", $paymentSourceId = "")
+    public function update($subscriptionId, $amount, $currency = "", $description = "", $reference = "", $paymentSourceId = "")
     {
         $this->action = "update";
         $this->subscriptionId = $subscriptionId;
-        $this->chargeData = ["amount" => $amount, "description"=>$description, "reference" => $reference, "payment_source_id" => $paymentSourceId];
+        $this->chargeData = ["amount" => $amount, "currency"=>$currency, "description"=>$description, "reference" => $reference, "payment_source_id" => $paymentSourceId];
         return $this;
     }
     
