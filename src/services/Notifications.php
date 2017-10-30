@@ -59,16 +59,15 @@ final class Notifications
         return $this;
     }
     
-    public function getTriggers()
+    public function getTrigger()
     {
         $this->action = "getTriggers";
         return $this;
     }
     
-    public function getTrigger($id)
+    public function withTriggerId($id)
     {
         $this->notificationTriggerId = $id;
-        $this->action = "getTrigger";
         return $this;
     }
     
@@ -120,7 +119,7 @@ final class Notifications
             case "getLog":
                 return $urlTools->BuildQueryStringUrl("notifications", "", $this->notificationFilter);
             case "archiveLog":
-                return "notifications/logs/" . urlencode($this->notificationLogId);
+                return "notifications/logs/" . urlencode($this->notificationTriggerId);
         }
         
         return "";
