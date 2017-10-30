@@ -35,5 +35,26 @@ final class TestNotifications extends TestBase
 
         $this->assertEquals("200", $response["status"]);
     }
+
+    public function testGetTemplates()
+    {
+        $svc = new Notifications();
+        $response = $svc->getTemplates()
+            ->call();
+        
+        $this->assertEquals("200", $response["status"]);
+    }
+    
+    public function testUDeleteTemplate()
+    {
+        $svc = new Notifications();
+        $response = $svc->createTemplate("Test body", "label", "transaction_success")
+            ->call();
+        
+        $response = $svc->deleteTemplate($response["resource"]["data"]["_id"])
+            ->call();
+
+        $this->assertEquals("200", $response["status"]);
+    }
 }
 ?>

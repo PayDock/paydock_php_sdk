@@ -18,7 +18,7 @@ final class Notifications
     private $parameters = array();
     private $action;
     private $notificationTemplateId;
-    private $actionMap = array("createTemplate" => "POST", "updateTemplate" => "POST");
+    private $actionMap = array("createTemplate" => "POST", "updateTemplate" => "POST", "getTemplates" => "GET", "deleteTemplate" => "DELETE");
     
     public function createTemplate($body, $label, $notificationEvent, $html = "")
     {
@@ -32,6 +32,19 @@ final class Notifications
         $this->notificationTemplateId = $id;
         $this->parameters = ["body" => $body, "label" => $label, "notification_event" => $notificationEvent, "html" => $html];
         $this->action = "updateTemplate";
+        return $this;
+    }
+    
+    public function getTemplates()
+    {
+        $this->action = "getTemplates";
+        return $this;
+    }
+    
+    public function deleteTemplate($id)
+    {
+        $this->notificationTemplateId = $id;
+        $this->action = "deleteTemplate";
         return $this;
     }
 
@@ -48,7 +61,11 @@ final class Notifications
         $urlTools = new UrlTools();
         switch ($this->action) {
             case "updateTemplate":
+            case "deleteTemplate":
                 return "notifications/templates/" . urlencode($this->notificationTemplateId);
+            case "createTemplate":
+            case "getTemplates":
+                return "notifications/templates";
         }
 
         return "notifications/templates";
