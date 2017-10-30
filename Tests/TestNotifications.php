@@ -15,23 +15,20 @@ use Paydock\Sdk\ResponseException;
  */
 final class TestNotifications extends TestBase
 {
-    public function testCreateTemplate()
+    public function testcreateNotificationTemplate()
     {
-        $svc = new Notifications();
-        $response = $svc->createTemplate("Test body", "label", "transaction_success")
-            ->call();
+        $response = ApiHelpers::createNotificationTemplate();
         
         $this->assertEquals("201", $response["status"]);
     }
 
     public function testUpdateTemplate()
     {
+        $response = ApiHelpers::createNotificationTemplate();
+
         $svc = new Notifications();
-        $response = $svc->createTemplate("Test body", "label", "transaction_success")
-            ->call();
-        
-        $response = $svc->updateTemplate($response["resource"]["data"]["_id"], "Test body_1", "labe_1", "transaction_success")
-        ->call();
+        $response = $svc->updateTemplate($response["resource"]["data"]["_id"], "Test body_1", "labe_1", "refund_failure")
+         ->call();
 
         $this->assertEquals("200", $response["status"]);
     }
@@ -45,13 +42,56 @@ final class TestNotifications extends TestBase
         $this->assertEquals("200", $response["status"]);
     }
     
-    public function testUDeleteTemplate()
+    public function testDeleteTemplate()
+    {
+        $response = ApiHelpers::createNotificationTemplate();
+
+        $svc = new Notifications();        
+        $response = $svc->deleteTemplate($response["resource"]["data"]["_id"])
+            ->call();
+
+        $this->assertEquals("200", $response["status"]);
+    }
+    
+    public function testAddTrigger()
+    {
+        $response = ApiHelpers::createNotificationTemplate();
+
+        $response = ApiHelpers::createNotificationTrigger($response["resource"]["data"]["_id"]);
+
+        $this->assertEquals("201", $response["status"]);
+    }
+    
+    public function testGetTriggers()
+    {
+        $svc = new Notifications();        
+        $response = $svc->getTriggers()
+            ->call();
+
+        $this->assertEquals("200", $response["status"]);
+    }
+    
+    public function testGetTrigger()
     {
         $svc = new Notifications();
-        $response = $svc->createTemplate("Test body", "label", "transaction_success")
-            ->call();
+        $response = ApiHelpers::createNotificationTemplate();
         
-        $response = $svc->deleteTemplate($response["resource"]["data"]["_id"])
+        $response = ApiHelpers::createNotificationTrigger($response["resource"]["data"]["_id"]);
+        
+        $response = $svc->getTrigger($response["resource"]["data"]["_id"])
+            ->call();
+
+        $this->assertEquals("200", $response["status"]);
+    }
+    
+    public function testDeleteTrigger()
+    {
+        $svc = new Notifications();
+        $response = ApiHelpers::createNotificationTemplate();
+        
+        $response = ApiHelpers::createNotificationTrigger($response["resource"]["data"]["_id"]);
+        
+        $response = $svc->deleteTrigger($response["resource"]["data"]["_id"])
             ->call();
 
         $this->assertEquals("200", $response["status"]);

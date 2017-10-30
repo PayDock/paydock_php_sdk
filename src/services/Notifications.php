@@ -18,7 +18,9 @@ final class Notifications
     private $parameters = array();
     private $action;
     private $notificationTemplateId;
-    private $actionMap = array("createTemplate" => "POST", "updateTemplate" => "POST", "getTemplates" => "GET", "deleteTemplate" => "DELETE");
+    private $notificationTriggerId;
+    private $actionMap = array("createTemplate" => "POST", "updateTemplate" => "POST", "getTemplates" => "GET", "deleteTemplate" => "DELETE",
+        "addTrigger" => "POST", "getTriggers" => "GET", "getTrigger" => "GET", "deleteTrigger" => "DELETE");
     
     public function createTemplate($body, $label, $notificationEvent, $html = "")
     {
@@ -48,6 +50,33 @@ final class Notifications
         return $this;
     }
 
+    public function addTrigger($type, $destination, $templateId, $event)
+    {
+        $this->parameters = ["type" => $type, "destination" => $destination, "templateId" => $templateId, "event" => $event];
+        $this->action = "addTrigger";
+        return $this;
+    }
+    
+    public function getTriggers()
+    {
+        $this->action = "getTriggers";
+        return $this;
+    }
+    
+    public function getTrigger($id)
+    {
+        $this->notificationTriggerId = $id;
+        $this->action = "getTrigger";
+        return $this;
+    }
+    
+    public function deleteTrigger($id)
+    {
+        $this->notificationTriggerId = $id;
+        $this->action = "deleteTrigger";
+        return $this;
+    }
+
     private function buildJson()
     {
         $jsonTools = new JsonTools();
@@ -66,9 +95,15 @@ final class Notifications
             case "createTemplate":
             case "getTemplates":
                 return "notifications/templates";
+            case "addTrigger":
+            case "getTriggers":
+                return "notifications";
+            case "getTrigger":
+            case "deleteTrigger":
+                return "notifications/" . urlencode($this->notificationTriggerId);
         }
-
-        return "notifications/templates";
+        
+        return "";
     }
 
     public function call()
