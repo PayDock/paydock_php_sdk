@@ -96,5 +96,27 @@ final class TestNotifications extends TestBase
 
         $this->assertEquals("200", $response["status"]);
     }
+    
+    public function testGetlog()
+    {
+        $svc = new Notifications();
+        $response = $svc->getLog(["success" => "true"])
+            ->call();
+
+        $this->assertEquals("200", $response["status"]);
+    }
+    
+    public function testArchivelog()
+    {
+        $svc = new Notifications();
+
+        $this->markTestSkipped("disabled this test as it needs a notification to have been sent");
+        return;
+
+        $response = $svc->archiveLog("<id goes here>")
+            ->call();
+
+        $this->assertEquals("200", $response["status"]);
+    }
 }
 ?>

@@ -16,11 +16,13 @@ require_once(__DIR__."/../tools/UrlTools.php");
 final class Notifications
 {
     private $parameters = array();
+    private $notificationFilter = array();
     private $action;
     private $notificationTemplateId;
     private $notificationTriggerId;
+    private $notificationLogId;
     private $actionMap = array("createTemplate" => "POST", "updateTemplate" => "POST", "getTemplates" => "GET", "deleteTemplate" => "DELETE",
-        "addTrigger" => "POST", "getTriggers" => "GET", "getTrigger" => "GET", "deleteTrigger" => "DELETE");
+        "addTrigger" => "POST", "getTriggers" => "GET", "getTrigger" => "GET", "deleteTrigger" => "DELETE", "getLog" => "GET", "archiveLog" => "DELETE");
     
     public function createTemplate($body, $label, $notificationEvent, $html = "")
     {
@@ -77,6 +79,20 @@ final class Notifications
         return $this;
     }
 
+    public function getLog($filter)
+    {
+        $this->notificationFilter = $filter;
+        $this->action = "getLog";
+        return $this;
+    }
+    
+    public function archiveLog($id)
+    {
+        $this->notificationLogId = $id;
+        $this->action = "archiveLog";
+        return $this;
+    }
+
     private function buildJson()
     {
         $jsonTools = new JsonTools();
@@ -101,6 +117,10 @@ final class Notifications
             case "getTrigger":
             case "deleteTrigger":
                 return "notifications/" . urlencode($this->notificationTriggerId);
+            case "getLog":
+                return $urlTools->BuildQueryStringUrl("notifications", "", $this->notificationFilter);
+            case "archiveLog":
+                return "notifications/logs/" . urlencode($this->notificationLogId);
         }
         
         return "";
