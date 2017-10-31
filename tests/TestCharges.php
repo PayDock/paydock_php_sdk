@@ -173,5 +173,20 @@ final class TestCharges extends TestBase
 
         $this->assertEquals("201", $response["status"]);
     }
+
+    public function testChargeWithTransfer()
+    {
+        $transfer = [
+            ["amount" => 60, "currency" => "AUD", "destination" => "stripe_account_1"],
+            ["amount" => 20, "currency" => "AUD", "destination" => "stripe_account_2"]
+        ];
+        $svc = new Charges();
+        $response = $svc->create(100, "AUD")
+            ->withCreditCard(self::creditGateway, "4111111111111111", "2020", "10", "Test Name", "123")
+            ->includeTransfer("stripe_group_id", $transfer)
+            ->call();
+        
+        $this->assertEquals("201", $response["status"]);
+    }
 }
 ?>

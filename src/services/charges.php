@@ -25,6 +25,7 @@ final class Charges
     private $chargeId;
     private $chargeFilter;
     private $refundAmount;
+    private $transfer;
     private $actionMap = array("create" => "POST", "get" => "GET", "refund" => "POST", "archive" => "DELETE");
     
     public function create($amount, $currency, $description = "", $reference = "")
@@ -64,6 +65,12 @@ final class Charges
     public function includeCustomerDetails($firstName, $lastName, $email, $phone)
     {
         $this->customerData += ["first_name" => $firstName, "last_name" => $lastName, "email" => $email, "phone" => $phone];
+        return $this;
+    }
+    
+    public function includeTransfer($stripeTransferGroup, $transferItems)
+    {
+        $this->transfer = ["stripe_transfer_group" => $stripeTransferGroup, "items" => $transferItems];
         return $this;
     }
 
@@ -111,6 +118,10 @@ final class Charges
 
         if (!empty($this->meta)) {
             $arrayData += ["meta" => $this->meta];
+        }
+        
+        if (!empty($this->transfer)) {
+            $arrayData += ["transfer" => $this->transfer];
         }
 
         $jsonTools = new JsonTools();
