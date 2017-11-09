@@ -76,7 +76,7 @@ final class TestCustomers extends TestBase
         $svc = new Customers();
 
         $reference = uniqid();
-        $response = $svc->create("John", "Smith", "test@test.com", "+61414958111", $reference)
+        $response = $svc->create("John", "Smith", "test@test.com", "+61414123123", $reference)
             ->withCreditCard(self::creditGateway, "4111111111111111", "2020", "10", "Test Name", "123")
             ->call();
 
@@ -93,7 +93,7 @@ final class TestCustomers extends TestBase
         $svc = new Customers();
 
         $reference = uniqid();
-        $response = $svc->create("John", "Smith", "test@test.com", "+61414958111", $reference)
+        $response = $svc->create("John", "Smith", "test@test.com", "+61414123123", $reference)
             ->withCreditCard(self::creditGateway, "4111111111111111", "2020", "10", "Test Name", "123")
             ->call();
 
@@ -114,7 +114,7 @@ final class TestCustomers extends TestBase
         $response = ApiHelpers::createCustomer(self::creditGateway);
 
         $svc = new Customers();
-        $response = $svc->update($response["resource"]["data"]["_id"], "John1", "Smith1", "test@test1.com", "+61414958111")
+        $response = $svc->update($response["resource"]["data"]["_id"], "John1", "Smith1", "test@test1.com", "+61414123123")
             ->call();
 
         $this->assertEquals("200", $response["status"]);
@@ -128,7 +128,7 @@ final class TestCustomers extends TestBase
         $response = ApiHelpers::createCustomer(self::creditGateway);
 
         $svc = new Customers();
-        $response = $svc->update($response["resource"]["data"]["_id"], "John", "Smith", "test@test1.com", "+61414958111")
+        $response = $svc->update($response["resource"]["data"]["_id"], "John", "Smith", "test@test1.com", "+61414123123")
             ->withCreditCard(self::creditGateway, "4111111111111111", "2020", "10", "Test Name", "123")
             ->call();
 
