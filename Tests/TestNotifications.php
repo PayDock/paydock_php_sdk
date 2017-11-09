@@ -65,7 +65,7 @@ final class TestNotifications extends TestBase
     public function testGetTriggers()
     {
         $svc = new Notifications();        
-        $response = $svc->getTrigger()
+        $response = $svc->getTriggers()
             ->call();
 
         $this->assertEquals("200", $response["status"]);
@@ -78,7 +78,7 @@ final class TestNotifications extends TestBase
         
         $response = ApiHelpers::createNotificationTrigger($response["resource"]["data"]["_id"]);
         
-        $response = $svc->getTrigger()
+        $response = $svc->getTriggers()
             ->withTriggerId($response["resource"]["data"]["_id"])
             ->call();
 

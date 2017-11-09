@@ -59,7 +59,7 @@ final class Notifications
         return $this;
     }
     
-    public function getTrigger()
+    public function getTriggers()
     {
         $this->action = "getTriggers";
         return $this;
