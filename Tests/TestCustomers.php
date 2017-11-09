@@ -123,6 +123,19 @@ final class TestCustomers extends TestBase
         $this->assertEquals("test@test1.com", $response["resource"]["data"]["email"]);
     }
     
+    public function testUpdateCustomerWithNewCard()
+    {
+        $response = ApiHelpers::createCustomer(self::creditGateway);
+
+        $svc = new Customers();
+        $response = $svc->update($response["resource"]["data"]["_id"], "John", "Smith", "test@test1.com", "+61414958111")
+            ->withCreditCard(self::creditGateway, "4111111111111111", "2020", "10", "Test Name", "123")
+            ->call();
+
+        $this->assertEquals("200", $response["status"]);
+        $this->assertEquals(2, count($response["resource"]["data"]["payment_sources"]));
+    }
+    
     public function testArchive()
     {
         $response = ApiHelpers::createCustomer(self::creditGateway);
