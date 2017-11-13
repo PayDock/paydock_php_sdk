@@ -84,10 +84,10 @@ use Paydock\Sdk\ResponseException;
                 $ex->JsonResponse = $response;
                 $parsedResponse = json_decode($response, true);
 
-                if (!empty($parsedResponse["error"]["message"])) {
-                    $ex->ErrorMessage = $parsedResponse["error"]["message"];
-                } else if (!empty($parsedResponse["error"]["message"]["message"])) {
+                if (!empty($parsedResponse["error"]["message"]["message"])) {
                     $ex->ErrorMessage = $parsedResponse["error"]["message"]["message"];
+                } else if (!empty($parsedResponse["error"]["message"])) {
+                    $ex->ErrorMessage = $parsedResponse["error"]["message"];
                 }
             }
         }
