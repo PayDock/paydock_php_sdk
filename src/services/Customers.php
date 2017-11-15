@@ -87,6 +87,12 @@ final class Customers
         return $this;
     }
     
+    public function withVaultToken($gatewayId, $vaultToken)
+    {
+        $this->paymentSourceData = ["gateway_id" => $gatewayId, "vaultToken" => $vaultToken];
+        return $this;
+    }
+    
     public function withParameters($filter)
     {
         $this->customerFilter = $filter;
