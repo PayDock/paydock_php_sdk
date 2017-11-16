@@ -42,6 +42,18 @@ final class TestNotifications extends TestBase
         $this->assertEquals("200", $response["status"]);
     }
     
+    public function testGetTemplateById()
+    {
+        $response = ApiHelpers::createNotificationTemplate();
+
+        $svc = new Notifications();
+        $response = $svc->getTemplates()
+            ->withTemplateId($response["resource"]["data"]["_id"])
+            ->call();
+
+        $this->assertEquals("200", $response["status"]);
+    }
+    
     public function testDeleteTemplate()
     {
         $response = ApiHelpers::createNotificationTemplate();

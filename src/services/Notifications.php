@@ -65,6 +65,12 @@ final class Notifications
         return $this;
     }
     
+    public function withTemplateId($id)
+    {
+        $this->notificationTemplateId = $id;
+        return $this;
+    }
+    
     public function withTriggerId($id)
     {
         $this->notificationTriggerId = $id;
@@ -108,8 +114,9 @@ final class Notifications
             case "deleteTemplate":
                 return "notifications/templates/" . urlencode($this->notificationTemplateId);
             case "createTemplate":
-            case "getTemplates":
                 return "notifications/templates";
+            case "getTemplates":
+                $urlTools->BuildQueryStringUrl("/templates", $this->notificationTemplateId, null);
             case "addTrigger":
             case "getTriggers":
                 return "notifications";
