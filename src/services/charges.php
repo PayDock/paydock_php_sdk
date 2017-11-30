@@ -25,15 +25,28 @@ final class Charges
     private $chargeId;
     private $chargeFilter;
     private $refundAmount;
+    private $captureAmount;
     private $transfer;
-    private $actionMap = array("create" => "POST", "get" => "GET", "refund" => "POST", "archive" => "DELETE");
+    private $capture;
+    private $actionMap = array("create" => "POST", "get" => "GET", "refund" => "POST", "archive" => "DELETE", "capture" => "POST");
     
-    public function create($amount, $currency, $description = "", $reference = "")
+    public function create($amount, $currency, $description = "", $reference = "", $capture = true)
     {
         $this->chargeData = ["amount" => $amount, "currency"=>$currency, "description"=>$description, "reference" => $reference];
+        $this->capture = $capture;
         $this->action = "create";
         return $this;
     }
+
+    public function capture($chargeId, $amount = null)
+    {
+        $this->chargeId = $chargeId;
+        $this->captureAmount = $amount;
+        $this->action = "capture";
+        return $this;
+    }
+
+    // TODO: cancel
 
     public function withToken($token)
     {
@@ -138,6 +151,14 @@ final class Charges
         return "";
     }
 
+    private function buildCaptureJson()
+    {
+        if (!empty($this->captureAmount)) {
+            return json_encode(["amount" => $this->captureAmount]);
+        }
+        return "";
+    }
+
     public function get()
     {
         $this->action = "get";
@@ -178,6 +199,8 @@ final class Charges
                 return $this->buildCreateJson();
             case "refund":
                 return $this->buildRefundJson();
+            case "capture":
+                return $this->buildCaptureJson();
         }
 
         return "";
@@ -187,6 +210,10 @@ final class Charges
     {
         $urlTools = new UrlTools();
         switch ($this->action) {
+            case "create":
+                return "charges" . ($this->capture ? "" : "?capture=false");
+            case "capture":
+                    return "charges/" . urlencode($this->chargeId) . "/capture";
             case "get":
                 return $urlTools->BuildQueryStringUrl("charges", $this->chargeId, $this->chargeFilter);
             case "refund":
