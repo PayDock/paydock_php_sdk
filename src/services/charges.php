@@ -28,7 +28,7 @@ final class Charges
     private $captureAmount;
     private $transfer;
     private $capture;
-    private $actionMap = array("create" => "POST", "get" => "GET", "refund" => "POST", "archive" => "DELETE", "capture" => "POST");
+    private $actionMap = array("create" => "POST", "get" => "GET", "refund" => "POST", "archive" => "DELETE", "capture" => "POST", "cancelAuthorisation" => "DELETE",);
     
     public function create($amount, $currency, $description = "", $reference = "", $capture = true)
     {
@@ -46,7 +46,12 @@ final class Charges
         return $this;
     }
 
-    // TODO: cancel
+    public function cancelAuthorisation($chargeId)
+    {
+        $this->chargeId = $chargeId;
+        $this->action = "cancelAuthorisation";
+        return $this;
+    }
 
     public function withToken($token)
     {
@@ -213,6 +218,7 @@ final class Charges
             case "create":
                 return "charges" . ($this->capture ? "" : "?capture=false");
             case "capture":
+            case "cancelAuthorisation":
                     return "charges/" . urlencode($this->chargeId) . "/capture";
             case "get":
                 return $urlTools->BuildQueryStringUrl("charges", $this->chargeId, $this->chargeFilter);

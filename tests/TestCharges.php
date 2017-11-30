@@ -203,5 +203,20 @@ final class TestCharges extends TestBase
 
         $this->assertEquals("201", $response["status"]);
     }
+    
+    public function testAuthoriseThenCancel()
+    {
+        $chargeSvc = new Charges();
+        $response = $chargeSvc->create(10, "AUD", "test_charge", "reference", false)
+            ->withCreditCard(self::authorizeGateway, "4111111111111111", "2020", "10", "Test Name", "123")
+            ->call();
+
+        $chargeId = $response["resource"]["data"]["_id"];
+
+        $response = $chargeSvc->cancelAuthorisation($chargeId)
+            ->call();
+
+        $this->assertEquals("200", $response["status"]);
+    }
 }
 ?>
