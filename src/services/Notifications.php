@@ -22,7 +22,7 @@ final class Notifications
     private $notificationTriggerId;
     private $notificationLogId;
     private $actionMap = array("createTemplate" => "POST", "updateTemplate" => "POST", "getTemplates" => "GET", "deleteTemplate" => "DELETE",
-        "addTrigger" => "POST", "getTriggers" => "GET", "getTrigger" => "GET", "deleteTrigger" => "DELETE", "getLog" => "GET", "archiveLog" => "DELETE");
+        "addTrigger" => "POST", "getTriggers" => "GET", "getTrigger" => "GET", "deleteTrigger" => "DELETE", "getLog" => "GET", "archiveLog" => "DELETE", "resend" => "PUT");
     
     public function createTemplate($body, $label, $notificationEvent, $html = "")
     {
@@ -97,6 +97,13 @@ final class Notifications
         $this->action = "archiveLog";
         return $this;
     }
+    
+    public function resend($id)
+    {
+        $this->notificationLogId = $id;
+        $this->action = "resend";
+        return $this;
+    }
 
     private function buildJson()
     {
@@ -124,9 +131,10 @@ final class Notifications
             case "deleteTrigger":
                 return "notifications/" . urlencode($this->notificationTriggerId);
             case "getLog":
-                return $urlTools->BuildQueryStringUrl("notifications", "", $this->notificationFilter);
+                return $urlTools->BuildQueryStringUrl("notifications/logs", "", $this->notificationFilter);
             case "archiveLog":
-                return "notifications/logs/" . urlencode($this->notificationTriggerId);
+            case "resend":
+                return "notifications/logs/" . urlencode($this->notificationLogId);
         }
         
         return "";

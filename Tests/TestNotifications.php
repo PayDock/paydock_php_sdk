@@ -121,13 +121,38 @@ final class TestNotifications extends TestBase
     
     public function testArchivelog()
     {
-        $svc = new Notifications();
-
         $this->markTestSkipped("disabled this test as it needs a notification to have been sent");
         return;
 
-        $response = $svc->archiveLog("<id goes here>")
+        // note: depends on existing notifications being present
+        $svc = new Notifications();
+        $response = $svc->getLog(["success" => "true"])
             ->call();
+
+        $id = $response["resource"]["data"][0]["_id"];
+
+        $response = $svc->archiveLog($id)
+            ->call();
+
+        $this->assertEquals("200", $response["status"]);
+    }
+    
+    public function testResendNotification()
+    {
+        $svc = new Notifications();
+        $response = $svc->getLog(["success" => "true"])
+            ->call();
+
+        // note: depends on existing notifications being present
+        $id = $response["resource"]["data"][0]["_id"];
+
+        try
+        {
+            $response = $svc->resend($id)
+                ->call();
+        } catch (ResponseException $ex) {
+            print($ex->ErrorMessage);
+        }
 
         $this->assertEquals("200", $response["status"]);
     }
