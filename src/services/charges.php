@@ -20,6 +20,7 @@ final class Charges
     private $customerId;
     private $paymentSourceData = array();
     private $customerData = array();
+    private $paymentSourceId;
     private $action;
     private $meta;
     private $chargeId;
@@ -75,7 +76,7 @@ final class Charges
     {
         $this->customerId = $customerId;
         if (!empty($paymentSourceId)) {
-            $this->customerData["payment_source_id"] = $paymentSourceId;
+            $this->paymentSourceId = $paymentSourceId;
         }
         return $this;
     }
@@ -121,6 +122,7 @@ final class Charges
             $arrayData += ["token" => $this->token];
         } else if (!empty($this->customerId)) {
             $arrayData += ["customer_id" => $this->customerId];
+            $arrayData += ["payment_source_id" => $this->paymentSourceId];
         }
     
         if (!empty($this->customerData)) {
