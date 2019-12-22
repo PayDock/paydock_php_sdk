@@ -13,56 +13,44 @@ require_once(__DIR__."/../tools/UrlTools.php");
  * For the full copyright and license information, please view
  * the LICENSE file which was distributed with this source code.
  */
-final class Subscriptions
+final class Charges
 {
     private $chargeData;
     private $token;
-    private $subscriptionId;
+    private $customerId;
     private $paymentSourceData = array();
     private $customerData = array();
-    private $scheduleData = array();
-    private $subscriptionFilter;
+    private $paymentSourceId;
     private $action;
     private $meta;
-    private $actionMap = ["create" => "POST", "update" => "POST", "get" => "GET", "delete" => "DELETE"];
+    private $chargeId;
+    private $chargeFilter;
+    private $refundAmount;
+    private $captureAmount;
+    private $transfer;
+    private $capture;
+    private $actionMap = array("create" => "POST", "get" => "GET", "refund" => "POST", "archive" => "DELETE", "capture" => "POST", "cancelAuthorisation" => "DELETE",);
     
-    public function create($amount, $currency, $description = "", $reference = "")
+    public function create($amount, $currency, $description = "", $reference = "", $capture = true)
     {
-        $this->action = "create";
         $this->chargeData = ["amount" => $amount, "currency"=>$currency, "description"=>$description, "reference" => $reference];
+        $this->capture = $capture;
+        $this->action = "create";
         return $this;
     }
 
-    public function update($subscriptionId, $amount, $currency = "", $description = "", $reference = "", $paymentSourceId = "")
+    public function capture($chargeId, $amount = null)
     {
-        $this->action = "update";
-        $this->subscriptionId = $subscriptionId;
-        $this->chargeData = ["amount" => $amount, "currency"=>$currency, "description"=>$description, "reference" => $reference, "payment_source_id" => $paymentSourceId];
+        $this->chargeId = $chargeId;
+        $this->captureAmount = $amount;
+        $this->action = "capture";
         return $this;
     }
-    
-    public function get()
+
+    public function cancelAuthorisation($chargeId)
     {
-        $this->action = "get";
-        return $this;
-    }
-    
-    public function delete($subscriptionId)
-    {
-        $this->action = "delete";
-        $this->subscriptionId = $subscriptionId;
-        return $this;
-    }
-    
-    public function withSubscriptionId($subscriptionId)
-    {
-        $this->subscriptionId = $subscriptionId;
-        return $this;
-    }
-    
-    public function withParameters($filter)
-    {
-        $this->subscriptionFilter = $filter;
+        $this->chargeId = $chargeId;
+        $this->action = "cancelAuthorisation";
         return $this;
     }
 
@@ -84,21 +72,24 @@ final class Subscriptions
         return $this;
     }
 
-    public function withCustomerId($customerId)
+    public function withCustomerId($customerId, $paymentSourceId = "")
     {
         $this->customerId = $customerId;
-        return $this;
-    }
-    
-    public function withSchedule($interval, $frequency, $startDate = null, $endDate = null, $endAmountAfter = null, $endAmountBefore = null, $endAmountTotal = null, $endTransactions = null)
-    {
-        $this->scheduleData = ["interval" => $interval, "frequency" => $frequency, "start_date" => $startDate, "end_date" => $endDate, "end_amount_after" => $endAmountAfter, "end_amount_before" => $endAmountBefore, "end_amount_total" => $endAmountTotal, "end_transactions" => $endTransactions];
+        if (!empty($paymentSourceId)) {
+            $this->paymentSourceId = $paymentSourceId;
+        }
         return $this;
     }
 
     public function includeCustomerDetails($firstName, $lastName, $email, $phone)
     {
         $this->customerData += ["first_name" => $firstName, "last_name" => $lastName, "email" => $email, "phone" => $phone];
+        return $this;
+    }
+    
+    public function includeTransfer($stripeTransferGroup, $transferItems)
+    {
+        $this->transfer = ["stripe_transfer_group" => $stripeTransferGroup, "items" => $transferItems];
         return $this;
     }
 
@@ -116,6 +107,10 @@ final class Subscriptions
 
     private function buildCreateJson()
     {
+        if (empty($this->token) && empty($this->customerId) && count($this->paymentSourceData) == 0) {
+            throw new \BadMethodCallException("must call with a token, customer or payment information");
+        }
+
         $arrayData = [
             'amount'      => $this->chargeData["amount"],
             'currency'    => $this->chargeData["currency"],
@@ -127,6 +122,7 @@ final class Subscriptions
             $arrayData += ["token" => $this->token];
         } else if (!empty($this->customerId)) {
             $arrayData += ["customer_id" => $this->customerId];
+            $arrayData += ["payment_source_id" => $this->paymentSourceId];
         }
     
         if (!empty($this->customerData)) {
@@ -139,13 +135,13 @@ final class Subscriptions
             }
             $arrayData["customer"]["payment_source"] = $this->paymentSourceData;
         }
-        
-        if (!empty($this->scheduleData)) {
-            $arrayData += ["schedule" => $this->scheduleData];
-        }
 
         if (!empty($this->meta)) {
             $arrayData += ["meta" => $this->meta];
+        }
+        
+        if (!empty($this->transfer)) {
+            $arrayData += ["transfer" => $this->transfer];
         }
 
         $jsonTools = new JsonTools();
@@ -153,24 +149,54 @@ final class Subscriptions
 
         return json_encode($arrayData);
     }
-    
-    private function buildUpdateJson()
+
+    private function buildRefundJson()
     {
-        $arrayData = [
-            'amount'      => $this->chargeData["amount"],
-            'reference'   => $this->chargeData["reference"],
-            'description'   => $this->chargeData["description"],
-            'payment_source_id'   => $this->chargeData["payment_source_id"]
-        ];
-        
-        if (!empty($this->schedule)) {
-            $arrayData += ["schedule" => $this->scheduleData];
+        if (!empty($this->refundAmount)) {
+            return json_encode(["amount" => $this->refundAmount]);
         }
+        return "";
+    }
 
-        $jsonTools = new JsonTools();
-        $arrayData = $jsonTools->CleanArray($arrayData);
+    private function buildCaptureJson()
+    {
+        if (!empty($this->captureAmount)) {
+            return json_encode(["amount" => $this->captureAmount]);
+        }
+        return "";
+    }
 
-        return json_encode($arrayData);
+    public function get()
+    {
+        $this->action = "get";
+        return $this;
+    }
+    
+    public function refund($chargeId, $amount = null)
+    {
+        $this->action = "refund";
+        $this->chargeId = $chargeId;
+        $this->refundAmount = $amount;
+        return $this;
+    }
+    
+    public function archive($chargeId)
+    {
+        $this->action = "archive";
+        $this->chargeId = $chargeId;
+        return $this;
+    }
+    
+    public function withChargeId($chargeId)
+    {
+        $this->chargeId = $chargeId;
+        return $this;
+    }
+    
+    public function withParameters($filter)
+    {
+        $this->chargeFilter = $filter;
+        return $this;
     }
     
     private function buildJson()
@@ -178,8 +204,10 @@ final class Subscriptions
         switch ($this->action) {
             case "create":
                 return $this->buildCreateJson();
-            case "update":
-                return $this->buildUpdateJson();
+            case "refund":
+                return $this->buildRefundJson();
+            case "capture":
+                return $this->buildCaptureJson();
         }
 
         return "";
@@ -188,17 +216,21 @@ final class Subscriptions
     private function buildUrl()
     {
         $urlTools = new UrlTools();
-
         switch ($this->action) {
-            case "update":
-                return "subscriptions/" . urlencode($this->subscriptionId);
+            case "create":
+                return "charges" . ($this->capture ? "" : "?capture=false");
+            case "capture":
+            case "cancelAuthorisation":
+                    return "charges/" . urlencode($this->chargeId) . "/capture";
             case "get":
-                return $urlTools->BuildQueryStringUrl("subscriptions", $this->subscriptionId, $this->subscriptionFilter);
-            case "delete":
-                return "subscriptions/" . urlencode($this->subscriptionId);
+                return $urlTools->BuildQueryStringUrl("charges", $this->chargeId, $this->chargeFilter);
+            case "refund":
+                return "charges/" . urlencode($this->chargeId) . "/refunds";
+            case "archive":
+                return "charges/" . urlencode($this->chargeId);
         }
 
-        return "subscriptions";
+        return "charges";
     }
 
     public function call()

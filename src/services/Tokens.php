@@ -1,7 +1,7 @@
 <?php
 namespace Paydock\Sdk;
 
-require_once(__DIR__."/../tools/ServiceHelper.php");
+require_once(__DIR__ . "/../tools/ServiceHelper.php");
 require_once(__DIR__."/../tools/JsonTools.php");
 require_once(__DIR__."/../tools/UrlTools.php");
 

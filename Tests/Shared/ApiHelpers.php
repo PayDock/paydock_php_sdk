@@ -1,7 +1,7 @@
 <?php
 
-require_once(__DIR__."/../../src/config.php");
-require_once(__DIR__."/../../src/services/Charges.php");
+require_once(__DIR__ . "/../../src/Config.php");
+require_once(__DIR__ . "/../../src/services/Charges.php");
 require_once(__DIR__."/../../src/services/Customers.php");
 require_once(__DIR__."/../../src/services/Tokens.php");
 require_once(__DIR__."/../../src/services/Notifications.php");
