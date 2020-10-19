@@ -89,7 +89,7 @@ final class Customers
     
     public function withVaultToken($gatewayId, $vaultToken)
     {
-        $this->paymentSourceData = ["gateway_id" => $gatewayId, "vaultToken" => $vaultToken];
+        $this->paymentSourceData = ["gateway_id" => $gatewayId, "vault_token" => $vaultToken];
         return $this;
     }
     
