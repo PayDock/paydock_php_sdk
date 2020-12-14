@@ -1,5 +1,8 @@
 <?php
 namespace Paydock\Sdk;
+require_once(__DIR__."/tools/JWTTools.php.php");
+
+use Paydock\Sdk\JWTTools;
 
 /*
  * This file is part of the Paydock.Sdk package.
@@ -10,27 +13,46 @@ namespace Paydock\Sdk;
  * the LICENSE file which was distributed with this source code.
  */
 class Config
-{    
+{
     public static $environment;
     public static $secretKey;
     public static $publicKey;
+    public static $accessToken;
+    public static $url;
     public static $timeoutMilliseconds;
 
-    public static function initialise($environment, $secretKey, $publicKey, $timeoutMilliseconds = 60000)
+    public static function initialise($environmentOrUrl, $secretKeyOrAccessToken, $publicKey, $timeoutMilliseconds = 60000)
     {
-        self::$environment = $environment;
-        self::$secretKey = $secretKey;
-        self::$publicKey = $publicKey;
+
+        // force lower case url
+        $environmentOrUrl = strtolower($environmentOrUrl);
+
+        // set environment and url
+        if ($environmentOrUrl == "sandbox") {
+            self::$url = "https://api-sandbox.paydock.com/v1/";
+            self::$environment = "sandbox";
+        } else if ($environmentOrUrl == "production") {
+            self::$url = "https://api.paydock.com/v1/";
+            self::$environment = "production";
+        } else {
+            self::$url = rtrim($environmentOrUrl,"/") . "/";
+            self::$environment = "other";
+        }
+
+        //test secret key or access token
+        if (JWTTools::isJWTToken($secretKeyOrAccessToken)) {
+            self::$secretKey = null;
+            self::$accessToken = $secretKeyOrAccessToken;
+        } else {
+            self::$secretKey = $secretKeyOrAccessToken;
+            self::$accessToken = null;
+        }
+
         self::$timeoutMilliseconds = $timeoutMilliseconds;
     }
 
     public static function baseUrl()
     {
-        if (self::$environment == "sandbox") {
-            return "https://api-sandbox.paydock.com/v1/";
-        } else {
-            return "https://api.paydock.com/v1/";            
-        }
+        return self::$url;
     }
 }
-?>

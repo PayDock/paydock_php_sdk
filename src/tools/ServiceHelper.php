@@ -25,21 +25,27 @@ use Paydock\Sdk\ResponseException;
         return ServiceHelper::ApiCall($data, $url, $method);
     }
 
-    public static function privateApiCall($method, $endpoint, $data, $overrideSecretKey = "")
+    public static function privateApiCall($method, $endpoint, $data, $overrideSecretKeyOrAccessToken = "")
     {
         $config = new Config();
         $url = $config::baseUrl() . $endpoint;
         
-        // handle overriding the secret key
+        // handle overriding the secret key or access token
         $secretKey = $config::$secretKey;
-        if (!empty($overrideSecretKey)) {
-            $secretKey = $overrideSecretKey;
+        $accessToken = $config::$accessToken;
+
+        if (!empty($overrideSecretKeyOrAccessToken)) {
+            if (JWTTools::isJWTToken($overrideSecretKeyOrAccessToken)) {
+                $accessToken = $overrideSecretKeyOrAccessToken;
+            } else {
+                $secretKey = $overrideSecretKeyOrAccessToken;
+            }
         }
 
-        return ServiceHelper::ApiCall($data, $url, $method, $secretKey);
+        return ServiceHelper::ApiCall($data, $url, $method, $secretKey, $accessToken);
     }
 
-    private static function ApiCall($data, $url, $method, $secretKey = "")
+    private static function ApiCall($data, $url, $method, $secretKey = "", $accessToken = "")
     {
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
@@ -50,11 +56,16 @@ use Paydock\Sdk\ResponseException;
         curl_setopt($ch, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_2);
         curl_setopt($ch, CURLOPT_TIMEOUT_MS, Config::$timeoutMilliseconds);
 
-        $headers = ["Content-Type: application/json",
-            "Content-Length: ". strlen($data)];
+        $headers = [
+            "Content-Type: application/json",
+            "Content-Length: ". strlen($data)
+        ];
         
         if (!empty($secretKey)) {
-            $headers[] = "x-user-token:". $secretKey;
+            $headers[] = "x-user-secret-key: $secretKey";
+        }
+        if (!empty($accessToken)) {
+            $headers[] = "x-access-token: $accessToken";
         }
 
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
@@ -97,5 +108,3 @@ use Paydock\Sdk\ResponseException;
         throw $ex;
     }
 }
-
-use Paydock\Sdk\serviceHelper;
