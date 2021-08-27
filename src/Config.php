@@ -1,6 +1,6 @@
 <?php
 namespace Paydock\Sdk;
-require_once(__DIR__."/tools/JWTTools.php.php");
+require_once(__DIR__."/tools/JWTTools.php");
 
 use Paydock\Sdk\JWTTools;
 
