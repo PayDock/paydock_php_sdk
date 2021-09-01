@@ -1,9 +1,10 @@
 <?php
-namespace Paydock\Sdk;
+namespace Paydock\Sdk\services;
 
-require_once(__DIR__ . "/../tools/ServiceHelper.php");
-require_once(__DIR__."/../tools/JsonTools.php");
-require_once(__DIR__."/../tools/UrlTools.php");
+use Paydock\Sdk\tools\JsonTools;
+use Paydock\Sdk\tools\ServiceHelper;
+use Paydock\Sdk\tools\UrlTools;
+use Paydock\Sdk\Config;
 
 /*
  * This file is part of the Paydock.Sdk package.
@@ -17,7 +18,7 @@ final class Tokens
 {
     private $actionMap = array("create" => "POST");
     private $paymentSourceData = array();
-    
+
     public function create()
     {
         $this->action = "create";
@@ -29,7 +30,7 @@ final class Tokens
         $this->paymentSourceData = ["gateway_id" => $gatewayId, "card_number" => $cardNumber, "expire_month" => $expireMonth, "expire_year" => $expireYear, "card_name" => $cardHolderName, "card_ccv" => $ccv];
         return $this;
     }
-    
+
     public function withBankAccount($gatewayId, $accountName, $accountBsb, $accountNumber, $accountHolderType = "", $accountBankName = "")
     {
         $this->paymentSourceData = ["gateway_id" => $gatewayId, "type" => "bank_account", "account_name" => $accountName, "account_bsb" => $accountBsb, "account_number" => $accountNumber, "account_holder_type" => $accountHolderType, "account_bank_name" => $accountBankName, "type" => "bsb"];
@@ -66,7 +67,7 @@ final class Tokens
     {
         $config = new Config();
         $urlTools = new UrlTools();
-        
+
         return "payment_sources/tokens?public_key=" . urlencode($config::$publicKey);
     }
 
@@ -78,4 +79,4 @@ final class Tokens
         return ServiceHelper::privateApiCall($this->actionMap[$this->action], $url, $data);
     }
 }
-?>
+

@@ -1,5 +1,6 @@
 <?php
 namespace Paydock\Sdk;
+
 use \Exception;
 
 /*
@@ -16,4 +17,3 @@ class ResponseException extends Exception
     public $ErrorMessage;
     public $JsonResponse;
 }
-?>

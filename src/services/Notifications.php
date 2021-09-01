@@ -1,9 +1,9 @@
 <?php
-namespace Paydock\Sdk;
+namespace Paydock\Sdk\services;
 
-require_once(__DIR__ . "/../tools/ServiceHelper.php");
-require_once(__DIR__."/../tools/JsonTools.php");
-require_once(__DIR__."/../tools/UrlTools.php");
+use Paydock\Sdk\tools\JsonTools;
+use Paydock\Sdk\tools\UrlTools;
+use Paydock\Sdk\tools\ServiceHelper;
 
 /*
  * This file is part of the Paydock.Sdk package.
@@ -23,14 +23,14 @@ final class Notifications
     private $notificationLogId;
     private $actionMap = array("createTemplate" => "POST", "updateTemplate" => "POST", "getTemplates" => "GET", "deleteTemplate" => "DELETE",
         "addTrigger" => "POST", "getTriggers" => "GET", "getTrigger" => "GET", "deleteTrigger" => "DELETE", "getLog" => "GET", "archiveLog" => "DELETE", "resend" => "PUT");
-    
+
     public function createTemplate($body, $label, $notificationEvent, $html = "")
     {
         $this->parameters = ["body" => $body, "label" => $label, "notification_event" => $notificationEvent, "html" => $html];
         $this->action = "createTemplate";
         return $this;
     }
-    
+
     public function updateTemplate($id, $body, $label, $notificationEvent, $html = "")
     {
         $this->notificationTemplateId = $id;
@@ -38,13 +38,13 @@ final class Notifications
         $this->action = "updateTemplate";
         return $this;
     }
-    
+
     public function getTemplates()
     {
         $this->action = "getTemplates";
         return $this;
     }
-    
+
     public function deleteTemplate($id)
     {
         $this->notificationTemplateId = $id;
@@ -58,25 +58,25 @@ final class Notifications
         $this->action = "addTrigger";
         return $this;
     }
-    
+
     public function getTriggers()
     {
         $this->action = "getTriggers";
         return $this;
     }
-    
+
     public function withTemplateId($id)
     {
         $this->notificationTemplateId = $id;
         return $this;
     }
-    
+
     public function withTriggerId($id)
     {
         $this->notificationTriggerId = $id;
         return $this;
     }
-    
+
     public function deleteTrigger($id)
     {
         $this->notificationTriggerId = $id;
@@ -90,14 +90,14 @@ final class Notifications
         $this->action = "getLog";
         return $this;
     }
-    
+
     public function archiveLog($id)
     {
         $this->notificationLogId = $id;
         $this->action = "archiveLog";
         return $this;
     }
-    
+
     public function resend($id)
     {
         $this->notificationLogId = $id;
@@ -136,7 +136,7 @@ final class Notifications
             case "resend":
                 return "notifications/logs/" . urlencode($this->notificationLogId);
         }
-        
+
         return "";
     }
 
@@ -148,4 +148,4 @@ final class Notifications
         return ServiceHelper::privateApiCall($this->actionMap[$this->action], $url, $data);
     }
 }
-?>
+

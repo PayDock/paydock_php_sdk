@@ -1,11 +1,9 @@
 <?php
-namespace Paydock\Sdk;
+namespace Paydock\Sdk\tools;
 
-require_once(__DIR__."/../Config.php");
-require_once(__DIR__."/../ResponseException.php");
-
-use Paydock\Sdk\config;
+use Paydock\Sdk\Config;
 use Paydock\Sdk\ResponseException;
+use Paydock\Sdk\tools\JWTTools;
 
 /*
  * This file is part of the Paydock.Sdk package.
@@ -21,7 +19,7 @@ use Paydock\Sdk\ResponseException;
     {
         $config = new Config();
         $url = $config::baseUrl() . $endpoint;
-        
+
         return ServiceHelper::ApiCall($data, $url, $method);
     }
 
@@ -29,13 +27,13 @@ use Paydock\Sdk\ResponseException;
     {
         $config = new Config();
         $url = $config::baseUrl() . $endpoint;
-        
+
         // handle overriding the secret key or access token
         $secretKey = $config::$secretKey;
         $accessToken = $config::$accessToken;
 
         if (!empty($overrideSecretKeyOrAccessToken)) {
-            if (JWTTools::isJWTToken($overrideSecretKeyOrAccessToken)) {
+            if ((new JWTTools)->isJWTToken($overrideSecretKeyOrAccessToken)) {
                 $accessToken = $overrideSecretKeyOrAccessToken;
             } else {
                 $secretKey = $overrideSecretKeyOrAccessToken;
@@ -60,7 +58,7 @@ use Paydock\Sdk\ResponseException;
             "Content-Type: application/json",
             "Content-Length: ". strlen($data)
         ];
-        
+
         if (!empty($secretKey)) {
             $headers[] = "x-user-secret-key: $secretKey";
         }
@@ -69,7 +67,7 @@ use Paydock\Sdk\ResponseException;
         }
 
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        
+
         $response = curl_exec($ch);
         $curlInfo = curl_getinfo($ch);
         $curlError = curl_errno($ch);
@@ -77,7 +75,11 @@ use Paydock\Sdk\ResponseException;
 
         // error in response
         if ($response === false || ($curlInfo['http_code'] != 200 && $curlInfo['http_code'] != 201)) {
-            ServiceHelper::BuildExceptionResponse($curlInfo, $response, $curlError);
+            try {
+                ServiceHelper::BuildExceptionResponse($curlInfo, $response, $curlError);
+            } catch (ResponseException $e) {
+                return $e->getMessage();
+            }
         }
 
         return json_decode($response, true);

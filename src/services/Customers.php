@@ -1,10 +1,10 @@
 <?php
-namespace Paydock\Sdk;
+namespace Paydock\Sdk\services;
 
-require_once(__DIR__ . "/../tools/ServiceHelper.php");
-require_once(__DIR__."/../tools/JsonTools.php");
-require_once(__DIR__."/../tools/UrlTools.php");
-require_once(__DIR__."/../Config.php");
+use Paydock\Sdk\tools\JsonTools;
+use Paydock\Sdk\tools\UrlTools;
+use Paydock\Sdk\tools\ServiceHelper;
+use Paydock\Sdk\Config;
 
 /*
  * This file is part of the Paydock.Sdk package.
@@ -27,20 +27,20 @@ final class Customers
     private $meta;
     private $actionMap = array("create" => "POST", "get" => "GET", "payment_sources" => "GET", "update" => "POST", "archive" => "DELETE");
     private $publicCalls = ["payment_sources"];
-    
+
     public function create($firstName = "", $lastName = "", $email = "", $phone = "", $reference = "")
     {
         $this->action = "create";
         $this->customerData = ["first_name" => $firstName, "last_name" => $lastName, "email" => $email, "phone" => $phone, "reference" => $reference];
         return $this;
     }
-    
+
     public function get()
     {
         $this->action = "get";
         return $this;
     }
-    
+
     public function getPaymentSources($queryToken)
     {
         $this->action = "payment_sources";
@@ -62,7 +62,7 @@ final class Customers
         $this->customerId = $customerId;
         return $this;
     }
-    
+
     public function withCustomerId($customerId)
     {
         $this->customerId = $customerId;
@@ -74,25 +74,25 @@ final class Customers
         $this->token = $token;
         return $this;
     }
-    
+
     public function withCreditCard($gatewayId, $cardNumber, $expireYear, $expireMonth, $cardHolderName, $ccv)
     {
         $this->paymentSourceData = ["gateway_id" => $gatewayId, "card_number" => $cardNumber, "expire_month" => $expireMonth, "expire_year" => $expireYear, "card_name" => $cardHolderName, "card_ccv" => $ccv];
         return $this;
     }
-    
+
     public function withBankAccount($gatewayId, $accountName, $accountBsb, $accountNumber, $accountHolderType = "", $accountBankName = "")
     {
         $this->paymentSourceData = ["gateway_id" => $gatewayId, "type" => "bank_account", "account_name" => $accountName, "account_bsb" => $accountBsb, "account_number" => $accountNumber, "account_holder_type" => $accountHolderType, "account_bank_name" => $accountBankName, "type" => "bsb"];
         return $this;
     }
-    
+
     public function withVaultToken($gatewayId, $vaultToken)
     {
         $this->paymentSourceData = ["gateway_id" => $gatewayId, "vault_token" => $vaultToken];
         return $this;
     }
-    
+
     public function withParameters($filter)
     {
         $this->customerFilter = $filter;
@@ -103,7 +103,7 @@ final class Customers
     {
         $this->defaultPaymentSource = $defaultPaymentSource;
     }
-    
+
     public function includeAddress($addressLine1, $addressLine2, $addressState, $addressCountry, $addressCity, $addressPostcode)
     {
         $this->paymentSourceData += ["address_line1" => $addressLine1, "address_line2" => $addressLine2, "address_state" => $addressState, "address_country" => $addressCountry, "address_city" => $addressCity, "address_postcode" => $addressPostcode];
@@ -145,10 +145,10 @@ final class Customers
 
         $jsonTools = new JsonTools();
         $arrayData = $jsonTools->CleanArray($arrayData);
-        
+
         return json_encode($arrayData);
     }
-    
+
     private function buildJsonUpdate()
     {
         $arrayData = $this->customerData;
@@ -163,7 +163,7 @@ final class Customers
 
         $jsonTools = new JsonTools();
         $arrayData = $jsonTools->CleanArray($arrayData);
-        
+
         return json_encode($arrayData);
     }
 
@@ -196,4 +196,4 @@ final class Customers
         }
     }
 }
-?>
+

@@ -1,9 +1,9 @@
 <?php
-namespace Paydock\Sdk;
+namespace Paydock\Sdk\services;
 
-require_once(__DIR__ . "/../tools/ServiceHelper.php");
-require_once(__DIR__."/../tools/JsonTools.php");
-require_once(__DIR__."/../tools/UrlTools.php");
+use Paydock\Sdk\tools\JsonTools;
+use Paydock\Sdk\tools\UrlTools;
+use Paydock\Sdk\tools\ServiceHelper;
 
 /*
  * This file is part of the Paydock.Sdk package.
@@ -19,7 +19,7 @@ final class Gateways
     private $action;
     private $gatewayId;
     private $actionMap = ["create" => "POST", "update" => "PUT", "delete" => "DELETE", "get" => "GET"];
-    
+
     public function create($type, $name, $username, $password, $merchant = "", $mode = "")
     {
         $this->parameters = ["type" => $type, "name" => $name, "username" => $username, "password" => $password, "mode" => $mode, "merchant" => $merchant];
@@ -41,13 +41,13 @@ final class Gateways
         $this->action = "delete";
         return $this;
     }
-    
+
     public function get()
     {
         $this->action = "get";
         return $this;
     }
-    
+
     public function withId($id)
     {
         $this->gatewayId = $id;
@@ -72,7 +72,7 @@ final class Gateways
             case "get":
                 return "gateways" . (empty($this->gatewayId) ? "" : "/" . urlencode($this->gatewayId));
         }
-        
+
         return "gateways";
     }
 
@@ -84,4 +84,3 @@ final class Gateways
         return ServiceHelper::privateApiCall($this->actionMap[$this->action], $url, $data);
     }
 }
-?>

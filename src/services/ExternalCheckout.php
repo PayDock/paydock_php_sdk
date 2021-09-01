@@ -1,9 +1,10 @@
 <?php
-namespace Paydock\Sdk;
+namespace Paydock\Sdk\services;
 
-require_once(__DIR__ . "/../tools/ServiceHelper.php");
-require_once(__DIR__."/../tools/JsonTools.php");
-require_once(__DIR__."/../tools/UrlTools.php");
+use Paydock\Sdk\tools\JsonTools;
+use Paydock\Sdk\tools\UrlTools;
+use Paydock\Sdk\tools\ServiceHelper;
+use Paydock\Sdk\Config;
 
 /*
  * This file is part of the Paydock.Sdk package.
@@ -48,7 +49,7 @@ final class ExternalCheckout
     {
         $config = new Config();
         $urlTools = new UrlTools();
-        
+
         return "payment_sources/external_checkout";
     }
 
@@ -60,4 +61,4 @@ final class ExternalCheckout
         return ServiceHelper::privateApiCall($this->actionMap[$this->action], $url, $data);
     }
 }
-?>
+

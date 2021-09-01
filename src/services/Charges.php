@@ -1,9 +1,9 @@
 <?php
-namespace Paydock\Sdk;
+namespace Paydock\Sdk\services;
 
-require_once(__DIR__ . "/../tools/ServiceHelper.php");
-require_once(__DIR__."/../tools/JsonTools.php");
-require_once(__DIR__."/../tools/UrlTools.php");
+use Paydock\Sdk\tools\JsonTools;
+use Paydock\Sdk\tools\ServiceHelper;
+use Paydock\Sdk\tools\UrlTools;
 
 /*
  * This file is part of the Paydock.Sdk package.
@@ -30,7 +30,7 @@ final class Charges
     private $transfer;
     private $capture;
     private $actionMap = array("create" => "POST", "get" => "GET", "refund" => "POST", "archive" => "DELETE", "capture" => "POST", "cancelAuthorisation" => "DELETE",);
-    
+
     public function create($amount, $currency, $description = "", $reference = "", $capture = true)
     {
         $this->chargeData = ["amount" => $amount, "currency"=>$currency, "description"=>$description, "reference" => $reference];
@@ -65,10 +65,18 @@ final class Charges
         $this->paymentSourceData = ["gateway_id" => $gatewayId, "card_number" => $cardNumber, "expire_month" => $expireMonth, "expire_year" => $expireYear, "card_name" => $cardHolderName, "card_ccv" => $ccv];
         return $this;
     }
-    
+
     public function withBankAccount($gatewayId, $accountName, $accountBsb, $accountNumber, $accountHolderType = "", $accountBankName = "")
     {
-        $this->paymentSourceData = ["gateway_id" => $gatewayId, "type" => "bank_account", "account_name" => $accountName, "account_bsb" => $accountBsb, "account_number" => $accountNumber, "account_holder_type" => $accountHolderType, "account_bank_name" => $accountBankName, "type" => "bsb"];
+        $this->paymentSourceData = [
+            "gateway_id" => $gatewayId,
+            "type" => "bank_account",
+            "account_name" => $accountName,
+            "account_bsb" => $accountBsb,
+            "account_number" => $accountNumber,
+            "account_holder_type" => $accountHolderType,
+            "account_bank_name" => $accountBankName,
+        ];
         return $this;
     }
 
@@ -86,7 +94,7 @@ final class Charges
         $this->customerData += ["first_name" => $firstName, "last_name" => $lastName, "email" => $email, "phone" => $phone];
         return $this;
     }
-    
+
     public function includeTransfer($stripeTransferGroup, $transferItems)
     {
         $this->transfer = ["stripe_transfer_group" => $stripeTransferGroup, "items" => $transferItems];
@@ -124,7 +132,7 @@ final class Charges
             $arrayData += ["customer_id" => $this->customerId];
             $arrayData += ["payment_source_id" => $this->paymentSourceId];
         }
-    
+
         if (!empty($this->customerData)) {
             $arrayData += ["customer" => $this->customerData];
         }
@@ -139,7 +147,7 @@ final class Charges
         if (!empty($this->meta)) {
             $arrayData += ["meta" => $this->meta];
         }
-        
+
         if (!empty($this->transfer)) {
             $arrayData += ["transfer" => $this->transfer];
         }
@@ -171,7 +179,7 @@ final class Charges
         $this->action = "get";
         return $this;
     }
-    
+
     public function refund($chargeId, $amount = null)
     {
         $this->action = "refund";
@@ -179,26 +187,26 @@ final class Charges
         $this->refundAmount = $amount;
         return $this;
     }
-    
+
     public function archive($chargeId)
     {
         $this->action = "archive";
         $this->chargeId = $chargeId;
         return $this;
     }
-    
+
     public function withChargeId($chargeId)
     {
         $this->chargeId = $chargeId;
         return $this;
     }
-    
+
     public function withParameters($filter)
     {
         $this->chargeFilter = $filter;
         return $this;
     }
-    
+
     private function buildJson()
     {
         switch ($this->action) {
@@ -241,4 +249,3 @@ final class Charges
         return ServiceHelper::privateApiCall($this->actionMap[$this->action], $url, $data);
     }
 }
-?>
