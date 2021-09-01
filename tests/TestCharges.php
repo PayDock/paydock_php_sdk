@@ -8,11 +8,11 @@ require_once(__DIR__."/../src/services/Customers.php");
 require_once(__DIR__."/../src/services/Tokens.php");
 
 use PHPUnit\Framework\TestCase;
-use Paydock\Sdk\config;
-use Paydock\Sdk\charges;
-use Paydock\Sdk\Customers;
-use Paydock\Sdk\Tokens;
-use Paydock\Sdk\ResponseException;
+use Paydock\Sdk\services\tools\tools\services\config;
+use Paydock\Sdk\services\tools\tools\services\charges;
+use Paydock\Sdk\services\tools\tools\services\Customers;
+use Paydock\Sdk\services\tools\tools\services\Tokens;
+use Paydock\Sdk\services\tools\tools\services\ResponseException;
 
 /**
  * @covers charges
@@ -22,10 +22,10 @@ final class TestCharges extends TestBase
     public function testCreateChargeWithCard()
     {
         $response = ApiHelpers::createCharge(self::creditGateway);
-        
+
         $this->assertEquals("201", $response["status"]);
     }
-    
+
     public function testCreateChargeWithBankAccount()
     {
         $svc = new Charges();
@@ -33,21 +33,21 @@ final class TestCharges extends TestBase
             ->withBankAccount(self::bsbGateway, "test", "012003", "456456")
             ->includeCustomerDetails("John", "Smith", "test@email.com", "+61414111111")
             ->call();
-        
+
         $this->assertEquals("201", $response["status"]);
     }
-    
+
     public function testCreateChargeWithoutGateway()
     {
         $svc = new Charges();
-        
+
         $this->expectException(ResponseException::class);
 
         $response = $svc->create(100, "AUD")
             ->withCreditCard("", "4111111111111111", "2020", "10", "Test Name", "123")
             ->call();
     }
-    
+
     public function testCreateChargeWithLowTimeout()
     {
         Config::$timeoutMilliseconds = 10;
@@ -65,7 +65,7 @@ final class TestCharges extends TestBase
     public function testCreateChargeWithoutPaymentDetails()
     {
         $svc = new Charges();
-        
+
         $exceptionOccurred = false;
         try {
             $response = $svc->create(100, "AUD")
@@ -123,7 +123,7 @@ final class TestCharges extends TestBase
         $response = ApiHelpers::createCharge(self::creditGateway);
 
         $chargeId = $response["resource"]["data"]["_id"];
-        
+
         $this->markTestSkipped("this test fails due to limitations at the gateway level");
         return;
 
@@ -132,7 +132,7 @@ final class TestCharges extends TestBase
 
         $this->assertEquals("200", $response["status"]);
     }
-    
+
     public function testCreateWithCustomerId()
     {
         $response = ApiHelpers::createCustomer(self::creditGateway);
@@ -159,13 +159,13 @@ final class TestCharges extends TestBase
 
         $this->assertEquals("200", $response["status"]);
     }
-    
+
     public function testCreateWithToken()
     {
         $response = ApiHelpers::createToken(self::creditGateway);
 
         $tokenId = $response["resource"]["data"];
-        
+
         $chargeSvc = new Charges();
         $response = $chargeSvc->create(10, "AUD")
             ->withToken($tokenId)
@@ -185,7 +185,7 @@ final class TestCharges extends TestBase
             ->withCreditCard(self::creditGateway, "4111111111111111", "2020", "10", "Test Name", "123")
             ->includeTransfer("stripe_group_id", $transfer)
             ->call();
-        
+
         $this->assertEquals("201", $response["status"]);
     }
 
@@ -203,7 +203,7 @@ final class TestCharges extends TestBase
 
         $this->assertEquals("201", $response["status"]);
     }
-    
+
     public function testAuthoriseThenCancel()
     {
         $chargeSvc = new Charges();

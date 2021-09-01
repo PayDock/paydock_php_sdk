@@ -1,5 +1,5 @@
 <?php
-namespace Paydock\Sdk;
+namespace Paydock\Sdk\tools;
 
 /*
  * This file is part of the Paydock.Sdk package.

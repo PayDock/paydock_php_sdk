@@ -1,16 +1,10 @@
 <?php
 
-require_once(__DIR__ . "/../../src/Config.php");
-require_once(__DIR__ . "/../../src/services/Charges.php");
-require_once(__DIR__."/../../src/services/Customers.php");
-require_once(__DIR__."/../../src/services/Tokens.php");
-require_once(__DIR__."/../../src/services/Notifications.php");
-
-use Paydock\Sdk\config;
-use Paydock\Sdk\charges;
-use Paydock\Sdk\Customers;
-use Paydock\Sdk\Tokens;
-use Paydock\Sdk\Notifications;
+use Paydock\Sdk\Config;
+use Paydock\Sdk\services\Charges;
+use Paydock\Sdk\services\Customers;
+use Paydock\Sdk\services\Tokens;
+use Paydock\Sdk\services\Notifications;
 
 /**
  * @covers TestBase
@@ -32,7 +26,7 @@ class ApiHelpers
             ->withCreditCard($gatewayId, "4111111111111111", "2020", "10", "Test Name", "123")
             ->call();
     }
-    
+
     public static function createCustomer($gatewayId)
     {
         $svc = new Customers();
@@ -55,4 +49,4 @@ class ApiHelpers
             ->call();
     }
 }
-?>
+

@@ -1,9 +1,7 @@
 <?php
 
-require_once(__DIR__ . "/../../src/Config.php");
-
 use PHPUnit\Framework\TestCase;
-use Paydock\Sdk\config;
+use Paydock\Sdk\Config;
 
 /**
  * @covers TestBase
@@ -19,4 +17,4 @@ class TestBase extends TestCase
         Config::initialise("sandbox", "", "");
     }
 }
-?>
+

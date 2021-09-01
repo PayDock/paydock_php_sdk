@@ -2,14 +2,10 @@
 
 require_once(__DIR__."/Shared/TestBase.php");
 require_once(__DIR__."/Shared/ApiHelpers.php");
-require_once(__DIR__."/../src/ResponseException.php");
-require_once(__DIR__."/../src/services/Customers.php");
-require_once(__DIR__."/../src/services/Tokens.php");
 
 use PHPUnit\Framework\TestCase;
-use Paydock\Sdk\config;
-use Paydock\Sdk\Customers;
-use Paydock\Sdk\Tokens;
+use Paydock\Sdk\services\Customers;
+use Paydock\Sdk\services\Tokens;
 use Paydock\Sdk\ResponseException;
 
 /**
@@ -34,10 +30,10 @@ final class TestCustomers extends TestBase
     public function testCreateCustomerWithCard()
     {
         $response = ApiHelpers::createCustomer(self::creditGateway);
-        
+
         $this->assertEquals("201", $response["status"]);
     }
-    
+
     public function testCreateCustomerWithBankAccount()
     {
         $svc = new Customers();
@@ -46,19 +42,19 @@ final class TestCustomers extends TestBase
             ->includeAddress("1 something st", "", "NSW", "Australia", "Sydney", "2000")
             ->includeMeta("")
             ->call();
-        
+
         $this->assertEquals("201", $response["status"]);
     }
-    
+
     public function testGetCustomers()
     {
         $svc = new Customers();
         $response = $svc->get()
             ->call();
-        
+
         $this->assertEquals("200", $response["status"]);
     }
-    
+
     public function testGetbyId()
     {
         $response = ApiHelpers::createCustomer(self::creditGateway);
@@ -87,7 +83,7 @@ final class TestCustomers extends TestBase
         $this->assertEquals("200", $response["status"]);
         $this->assertEquals(1, $response["resource"]["count"]);
     }
-    
+
     public function testGetPaymentSources()
     {
         $svc = new Customers();
@@ -108,7 +104,7 @@ final class TestCustomers extends TestBase
 
         $this->assertEquals("200", $response["status"]);
     }
-    
+
     public function testUpdateCustomer()
     {
         $response = ApiHelpers::createCustomer(self::creditGateway);
@@ -122,7 +118,7 @@ final class TestCustomers extends TestBase
         $this->assertEquals("Smith1", $response["resource"]["data"]["last_name"]);
         $this->assertEquals("test@test1.com", $response["resource"]["data"]["email"]);
     }
-    
+
     public function testUpdateCustomerWithNewCard()
     {
         $response = ApiHelpers::createCustomer(self::creditGateway);
@@ -135,7 +131,7 @@ final class TestCustomers extends TestBase
         $this->assertEquals("200", $response["status"]);
         $this->assertEquals(2, count($response["resource"]["data"]["payment_sources"]));
     }
-    
+
     public function testArchive()
     {
         $response = ApiHelpers::createCustomer(self::creditGateway);
@@ -147,4 +143,4 @@ final class TestCustomers extends TestBase
         $this->assertEquals("200", $response["status"]);
     }
 }
-?>
+

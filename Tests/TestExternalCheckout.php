@@ -1,13 +1,10 @@
 <?php
 
 require_once(__DIR__."/Shared/TestBase.php");
-require_once(__DIR__."/Shared/ApiHelpers.php");
-require_once(__DIR__."/../src/ResponseException.php");
-require_once(__DIR__."/../src/services/ExternalCheckout.php");
 
 use PHPUnit\Framework\TestCase;
-use Paydock\Sdk\config;
-use Paydock\Sdk\ExternalCheckout;
+use Paydock\Sdk\Config;
+use Paydock\Sdk\services\ExternalCheckout;
 use Paydock\Sdk\ResponseException;
 
 /**
@@ -113,4 +110,4 @@ final class TestExternalCheckout extends TestBase
         $this->assertEquals("200", $response["status"]);
     }
 }
-?>
+

@@ -1,9 +1,9 @@
 <?php
-namespace Paydock\Sdk;
+namespace Paydock\Sdk\services;
 
-require_once(__DIR__ . "/../tools/ServiceHelper.php");
-require_once(__DIR__."/../tools/JsonTools.php");
-require_once(__DIR__."/../tools/UrlTools.php");
+use Paydock\Sdk\tools\JsonTools;
+use Paydock\Sdk\tools\ServiceHelper;
+use Paydock\Sdk\tools\UrlTools;
 
 /*
  * This file is part of the Paydock.Sdk package.
@@ -25,7 +25,7 @@ final class Subscriptions
     private $action;
     private $meta;
     private $actionMap = ["create" => "POST", "update" => "POST", "get" => "GET", "delete" => "DELETE"];
-    
+
     public function create($amount, $currency, $description = "", $reference = "")
     {
         $this->action = "create";
@@ -40,26 +40,26 @@ final class Subscriptions
         $this->chargeData = ["amount" => $amount, "currency"=>$currency, "description"=>$description, "reference" => $reference, "payment_source_id" => $paymentSourceId];
         return $this;
     }
-    
+
     public function get()
     {
         $this->action = "get";
         return $this;
     }
-    
+
     public function delete($subscriptionId)
     {
         $this->action = "delete";
         $this->subscriptionId = $subscriptionId;
         return $this;
     }
-    
+
     public function withSubscriptionId($subscriptionId)
     {
         $this->subscriptionId = $subscriptionId;
         return $this;
     }
-    
+
     public function withParameters($filter)
     {
         $this->subscriptionFilter = $filter;
@@ -77,7 +77,7 @@ final class Subscriptions
         $this->paymentSourceData = ["gateway_id" => $gatewayId, "card_number" => $cardNumber, "expire_month" => $expireMonth, "expire_year" => $expireYear, "card_name" => $cardHolderName, "card_ccv" => $ccv];
         return $this;
     }
-    
+
     public function withBankAccount($gatewayId, $accountName, $accountBsb, $accountNumber, $accountHolderType = "", $accountBankName = "")
     {
         $this->paymentSourceData = ["gateway_id" => $gatewayId, "type" => "bank_account", "account_name" => $accountName, "account_bsb" => $accountBsb, "account_number" => $accountNumber, "account_holder_type" => $accountHolderType, "account_bank_name" => $accountBankName, "type" => "bsb"];
@@ -89,7 +89,7 @@ final class Subscriptions
         $this->customerId = $customerId;
         return $this;
     }
-    
+
     public function withSchedule($interval, $frequency, $startDate = null, $endDate = null, $endAmountAfter = null, $endAmountBefore = null, $endAmountTotal = null, $endTransactions = null)
     {
         $this->scheduleData = ["interval" => $interval, "frequency" => $frequency, "start_date" => $startDate, "end_date" => $endDate, "end_amount_after" => $endAmountAfter, "end_amount_before" => $endAmountBefore, "end_amount_total" => $endAmountTotal, "end_transactions" => $endTransactions];
@@ -128,7 +128,7 @@ final class Subscriptions
         } else if (!empty($this->customerId)) {
             $arrayData += ["customer_id" => $this->customerId];
         }
-    
+
         if (!empty($this->customerData)) {
             $arrayData += ["customer" => $this->customerData];
         }
@@ -139,7 +139,7 @@ final class Subscriptions
             }
             $arrayData["customer"]["payment_source"] = $this->paymentSourceData;
         }
-        
+
         if (!empty($this->scheduleData)) {
             $arrayData += ["schedule" => $this->scheduleData];
         }
@@ -153,7 +153,7 @@ final class Subscriptions
 
         return json_encode($arrayData);
     }
-    
+
     private function buildUpdateJson()
     {
         $arrayData = [
@@ -162,7 +162,7 @@ final class Subscriptions
             'description'   => $this->chargeData["description"],
             'payment_source_id'   => $this->chargeData["payment_source_id"]
         ];
-        
+
         if (!empty($this->schedule)) {
             $arrayData += ["schedule" => $this->scheduleData];
         }
@@ -172,7 +172,7 @@ final class Subscriptions
 
         return json_encode($arrayData);
     }
-    
+
     private function buildJson()
     {
         switch ($this->action) {
@@ -209,4 +209,4 @@ final class Subscriptions
         return ServiceHelper::privateApiCall($this->actionMap[$this->action], $url, $data);
     }
 }
-?>
+

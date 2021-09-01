@@ -1,8 +1,7 @@
 <?php
 namespace Paydock\Sdk;
-require_once(__DIR__."/tools/JWTTools.php");
 
-use Paydock\Sdk\JWTTools;
+use Paydock\Sdk\tools\JWTTools;
 
 /*
  * This file is part of the Paydock.Sdk package.
@@ -40,7 +39,7 @@ class Config
         }
 
         //test secret key or access token
-        if (JWTTools::isJWTToken($secretKeyOrAccessToken)) {
+        if ((new JWTTools)->isJWTToken($secretKeyOrAccessToken)) {
             self::$secretKey = null;
             self::$accessToken = $secretKeyOrAccessToken;
         } else {
