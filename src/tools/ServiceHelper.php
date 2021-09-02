@@ -43,70 +43,69 @@ use Paydock\Sdk\tools\JWTTools;
         return ServiceHelper::ApiCall($data, $url, $method, $secretKey, $accessToken);
     }
 
-    private static function ApiCall($data, $url, $method, $secretKey = "", $accessToken = "")
-    {
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_ENCODING, "gzip");
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_2);
-        curl_setopt($ch, CURLOPT_TIMEOUT_MS, Config::$timeoutMilliseconds);
+     private static function ApiCall($data, $url, $method, $secretKey = "", $accessToken = "")
+     {
+         $ch = curl_init();
+         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
+         curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+         curl_setopt($ch, CURLOPT_URL, $url);
+         curl_setopt($ch, CURLOPT_ENCODING, "gzip");
+         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+         curl_setopt($ch, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_2);
+         curl_setopt($ch, CURLOPT_TIMEOUT_MS, Config::$timeoutMilliseconds);
 
-        $headers = [
-            "Content-Type: application/json",
-            "Content-Length: ". strlen($data)
-        ];
+         $headers = [
+             "Content-Type: application/json",
+             "Content-Length: ". strlen($data)
+         ];
 
-        if (!empty($secretKey)) {
-            $headers[] = "x-user-secret-key: $secretKey";
-        }
-        if (!empty($accessToken)) {
-            $headers[] = "x-access-token: $accessToken";
-        }
+         if (!empty($secretKey)) {
+             $headers[] = "x-user-secret-key: $secretKey";
+         }
+         if (!empty($accessToken)) {
+             $headers[] = "x-access-token: $accessToken";
+         }
 
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
-        $response = curl_exec($ch);
-        $curlInfo = curl_getinfo($ch);
-        $curlError = curl_errno($ch);
-        curl_close($ch);
+         $response = curl_exec($ch);
+         $curlInfo = curl_getinfo($ch);
+         $curlError = curl_errno($ch);
+         curl_close($ch);
 
-        // error in response
-        if ($response === false || ($curlInfo['http_code'] != 200 && $curlInfo['http_code'] != 201)) {
-            try {
-                ServiceHelper::BuildExceptionResponse($curlInfo, $response, $curlError);
-            } catch (ResponseException $e) {
-                return $e->getMessage();
-            }
-        }
+         // error in response
+         if ($response === false || ($curlInfo['http_code'] != 200 && $curlInfo['http_code'] != 201)) {
+             ServiceHelper::BuildExceptionResponse($curlInfo, $response, $curlError);
+         }
 
-        return json_decode($response, true);
-    }
+         return json_decode($response, true);
+     }
 
-    private static function BuildExceptionResponse($curlInfo, $response, $curlError)
-    {
-        $ex = new ResponseException();
-        if ($curlError === 28) {
-            $ex->Status = "400";
-            $ex->ErrorMessage = "Request Timeout";
-        } else {
-            $ex->Status = $curlInfo['http_code'];
-            if ($response != false) {
-                $ex->JsonResponse = $response;
-                $parsedResponse = json_decode($response, true);
+     /**
+      * @throws ResponseException
+      */
+     private static function BuildExceptionResponse($curlInfo, $response, $curlError)
+     {
+         $ex = new ResponseException();
+         if ($curlError === 28) {
+             $ex->setCode("400");
+             $ex->setMessage("Request Timeout");
+         } else {
+             $ex->setCode($curlInfo['http_code']);
+             if ($response != false) {
+                 $ex->setJsonResponse($response);
+                 $parsedResponse = json_decode($response, true);
 
-                if (!empty($parsedResponse["error"]["message"]["message"])) {
-                    $ex->ErrorMessage = $parsedResponse["error"]["message"]["message"];
-                } else if (!empty($parsedResponse["error"]["message"])) {
-                    $ex->ErrorMessage = $parsedResponse["error"]["message"];
-                }
-            }
-        }
+                 if (!empty($parsedResponse["error"]["message"]["message"])) {
+                     $ex->setMessage($parsedResponse["error"]["message"]["message"]);
+                 } else if (!empty($parsedResponse["error"]["message"])) {
+                     $ex->setMessage($parsedResponse["error"]["message"]);
+                 }
+             }
+         }
 
-        $ex->ErrorMessage = $ex->Status . " - " . $ex->ErrorMessage;
+         $ex->setMessage($ex->getCode() . " - " . $ex->getMessage());
 
-        throw $ex;
-    }
-}
+         throw $ex;
+     }
+ }
